@@ -63,5 +63,7 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("com.squareup.picasso:picasso:2.8")
 
+    implementation("com.github.jitpack:android-example:1.0.1")
+    implementation("com.github.AnyChart:AnyChart-Android:1.1.5")
 
 }

@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.fin362.R
 import com.example.fin362.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
@@ -23,16 +26,37 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val homeViewModel =
-            ViewModelProvider(this).get(HomeViewModel::class.java)
+            ViewModelProvider(this)[HomeViewModel::class.java]
 
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        val view: View = binding.root
 
-        /*val textView: TextView = binding.textHome
-        homeViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }*/
-        return root
+        val layoutSpinner = view.findViewById<Spinner>(R.id.history_view_spinner)
+
+        ArrayAdapter.createFromResource(
+            requireContext(),
+            R.array.history_layout_types,
+            android.R.layout.simple_spinner_item
+        ).also { adapter ->
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            layoutSpinner.adapter = adapter
+        }
+
+        layoutSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Intentionally does nothing
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                when(position){
+                    0 -> homeViewModel.compactView = false
+                    1 -> homeViewModel.compactView = true
+                    else -> homeViewModel.compactView = false // Shouldn't be possible
+                }
+            }
+        }
+
+        return view
     }
 
     override fun onDestroyView() {

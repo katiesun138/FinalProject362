@@ -18,4 +18,15 @@
 
     <string name="history_detail_notes">Additional Notes</string>
     <string name="history_detail_save">Save</string>
+
+    <string-array name="history_layout_types">
+        List View
+        Compact View
+    </string-array>
+    
+    <string-array name="history_graph_types">
+        Pie Chart View
+        Bar Graph View
+        Sankey Diagram View
+    </string-array>
 </resources>
