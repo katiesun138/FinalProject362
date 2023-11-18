@@ -13,4 +13,15 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="FirebaseUITheme" parent="FirebaseUI">
+        <!-- Customize FirebaseUI styles here -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowBackground">@drawable/jobcentral_login_background</item>
+        <!-- Add other customizations as needed -->
+    </style>
 </resources>
+
+

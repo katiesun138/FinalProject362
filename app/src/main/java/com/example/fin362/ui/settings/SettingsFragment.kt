@@ -7,10 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.example.fin362.R
-import com.example.fin362.databinding.FragmentNotificationsBinding
 import com.example.fin362.databinding.FragmentSettingsBinding
-import com.example.fin362.ui.notifications.NotificationsViewModel
 
 class SettingsFragment : Fragment() {
 
