@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="history_filter_button_all">All</string>
+    <string name="history_filter_button_applied">Applied</string>
+    <string name="history_filter_button_screen">Screen</string>
+    <string name="history_filter_button_interview">Interview</string>
+    <string name="history_filter_button_offer">Offer</string>
+
+    <string name="history_job_title">Example Job Title</string>
+    <string name="history_job_company_name">Example Company Name</string>
+    <string name="history_job_date">17/10/23</string>
+    <string name="history_job_location">Vancouver, BC</string>
+
+    <string name="history_status_rejected">Rejected</string>
+    <string name="history_status_interviewing">Interviewing</string>
+    <string name="history_status_applied">Applied</string>
+    <string name="history_status_offer">Offer</string>
+
+    <string name="history_detail_notes">Additional Notes</string>
+    <string name="history_detail_save">Save</string>
+</resources>
