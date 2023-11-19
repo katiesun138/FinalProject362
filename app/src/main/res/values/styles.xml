@@ -19,5 +19,4 @@
     <style name="WelcomeTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme attributes here -->
     </style>
-
 </resources>
