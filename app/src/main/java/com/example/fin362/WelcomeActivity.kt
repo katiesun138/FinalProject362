@@ -19,8 +19,8 @@ class WelcomeActivity : AppCompatActivity() {
                 prefs.edit().putBoolean(WELCOME_SCREEN_SHOWN, true)
                     .apply()
 
-                // Proceed to the next activity (e.g., your main activity)
-                val intent = Intent(this@WelcomeActivity, MainActivity::class.java)
+                // Proceed to the next activity
+                val intent = Intent(this@WelcomeActivity, LoginActivity::class.java)
                 startActivity(intent)
                 finish()
             }
@@ -31,8 +31,8 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     private fun proceedToNextActivity() {
-        // Proceed to the next activity (e.g., your main activity)
-        val intent = Intent(this@WelcomeActivity, MainActivity::class.java)
+        // Proceed to the next activity
+        val intent = Intent(this@WelcomeActivity, LoginActivity::class.java)
         startActivity(intent)
         finish()
     }

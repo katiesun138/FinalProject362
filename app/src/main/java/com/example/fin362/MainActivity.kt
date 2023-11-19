@@ -45,13 +45,14 @@ class MainActivity : FirebaseUIActivity() {
         val currentUser = auth.currentUser
 
         if (currentUser == null) {
-            createSignInIntent()
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
 
         val signOutButton = findViewById<Button>(R.id.signOut_button)
         signOutButton.setOnClickListener {
             signOut()
-            createSignInIntent()
         }
     }
 }
