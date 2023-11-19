@@ -20,13 +20,13 @@
     <string name="history_detail_save">Save</string>
 
     <string-array name="history_layout_types">
-        List View
-        Compact View
+        <item>List View</item>
+        <item>Compact View</item>
     </string-array>
     
     <string-array name="history_graph_types">
-        Pie Chart View
-        Bar Graph View
-        Sankey Diagram View
+        <item>Pie Chart View</item>
+        <item>Bar Graph View</item>
+        <item>Sankey Diagram View</item>
     </string-array>
 </resources>

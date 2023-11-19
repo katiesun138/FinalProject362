@@ -9,7 +9,11 @@
         android:id="@+id/navigation_home"
         android:name="com.example.fin362.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_navigation_home_to_homeDetail"
+            app:destination="@id/homeDetail" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -28,4 +32,9 @@
         android:name="com.example.fin362.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/homeDetail"
+        android:name="com.example.fin362.ui.home.HomeDetail"
+        android:label="fragment_home_detail"
+        tools:layout="@layout/fragment_home_detail" />
 </navigation>
