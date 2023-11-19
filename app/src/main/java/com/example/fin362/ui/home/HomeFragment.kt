@@ -23,18 +23,18 @@ class HomeFragment : Fragment() {
 
     private fun historyDetailSetup(view: View){
         val jobList = view.findViewById<LinearLayout>(R.id.history_job_list)
+        /*
+                for(cardIndex in 0..jobList.childCount){
+                    val card = jobList.getChildAt(cardIndex)
 
-        for(cardIndex in 0..jobList.childCount){
-            val card = jobList.getChildAt(cardIndex)
-
-            card.setOnClickListener{
-                //TODO: This doesn't pass any info, it just changes fragments.
-                //Not actually useful in its current state!
-                val fragTransaction = requireActivity().supportFragmentManager.beginTransaction()
-                fragTransaction.replace(R.id.nav_host_fragment_activity_main, HomeDetail())
-                fragTransaction.commit()
-            }
-        }
+                    card.setOnClickListener{
+                        //TODO: This doesn't pass any info, it just changes fragments.
+                        //Not actually useful in its current state!
+                        val fragTransaction = requireActivity().supportFragmentManager.beginTransaction()
+                        fragTransaction.replace(R.id.nav_host_fragment_activity_main, HomeDetail())
+                        fragTransaction.commit()
+                    }
+                }*/
     }
 
     override fun onCreateView(
