@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.LinearLayout
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +20,22 @@ class HomeFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    private fun historyDetailSetup(view: View){
+        val jobList = view.findViewById<LinearLayout>(R.id.history_job_list)
+
+        for(cardIndex in 0..jobList.childCount){
+            val card = jobList.getChildAt(cardIndex)
+
+            card.setOnClickListener{
+                //TODO: This doesn't pass any info, it just changes fragments.
+                //Not actually useful in its current state!
+                val fragTransaction = requireActivity().supportFragmentManager.beginTransaction()
+                fragTransaction.replace(R.id.nav_host_fragment_activity_main, HomeDetail())
+                fragTransaction.commit()
+            }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -55,6 +72,8 @@ class HomeFragment : Fragment() {
                 }
             }
         }
+
+        historyDetailSetup(view)
 
         return view
     }
