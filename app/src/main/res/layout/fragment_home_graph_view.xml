@@ -14,11 +14,11 @@
         style="@style/Widget.AppCompat.Spinner.Underlined"
         />
 
-    <com.anychart.AnyChartView
-        android:id="@+id/history_graph"
-        android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:layout_below="@id/history_graph_mode_spinner" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PLACEHOLDER, GRAPH GOES HERE"
+        android:layout_below="@id/history_graph_mode_spinner"/>
 
     <View
         android:id="@+id/history_graph_spacer"
