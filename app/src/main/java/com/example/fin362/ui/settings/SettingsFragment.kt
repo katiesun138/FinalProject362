@@ -13,9 +13,7 @@ import android.widget.TextView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.example.fin362.R
-import com.example.fin362.databinding.FragmentNotificationsBinding
 import com.example.fin362.databinding.FragmentSettingsBinding
-import com.example.fin362.ui.notifications.NotificationsViewModel
 
 class SettingsFragment : Fragment() {
 
