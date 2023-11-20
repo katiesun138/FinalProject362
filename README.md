@@ -15,7 +15,8 @@ Yigao Zhao, yza557@sfu.ca
 Katherine Sun, ksa138@sfu.ca
 
 ## Project Pitch
-[![Watch the video]([https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg](https://i.ytimg.com/vi/b6qk3J34yzA/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH4CYAC0AWKAgwIABABGEYgVChlMA8=&amp;rs=AOn4CLA66CPUlAppcAZWLgQ3P4icqb2nJQ))](https://youtu.be/b6qk3J34yzA)
+[![Watch the video](https://i.ytimg.com/vi/b6qk3J34yzA/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH4CYAC0AWKAgwIABABGEYgVChlMA8=&amp;rs=AOn4CLA66CPUlAppcAZWLgQ3P4icqb2nJQ
+)](https://youtu.be/b6qk3J34yzA)
 
 
 ### Installing
