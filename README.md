@@ -19,10 +19,8 @@ Katherine Sun, ksa138@sfu.ca
 )](https://youtu.be/b6qk3J34yzA)
 
 
-### Installing
-
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+### Show and Tell 1
+[![Watch the video](https://i.ytimg.com/vi/JOxnR0nhxSE/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH4CYAC0AWKAgwIABABGDQgVCh_MA8=&rs=AOn4CLDFgV7MNptKNIzi2_i-sG2qEq3RyQ)](https://youtu.be/JOxnR0nhxSE)
 
 ### Executing program
 
