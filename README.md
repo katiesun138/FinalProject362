@@ -9,9 +9,13 @@ Job Central revolutionizes the job search by centralizing diverse job postings i
 
 ### Contributers
 Group 12: 
+<br>
 Kevin Liu, kla155@sfu.ca
+<br>
 Alice McCollum, aom1@sfu.ca
+<br>
 Yigao Zhao, yza557@sfu.ca
+<br>
 Katherine Sun, ksa138@sfu.ca
 
 ## Project Pitch
