@@ -1,6 +1,4 @@
-# Project Title
-
-JobCentral
+# JobCentral - one click application to your dream job!
 
 ## Description
 
@@ -26,45 +24,19 @@ Katherine Sun, ksa138@sfu.ca
 ### Show and Tell 1
 [![Watch the video](https://i.ytimg.com/vi/JOxnR0nhxSE/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH4CYAC0AWKAgwIABABGDQgVCh_MA8=&rs=AOn4CLDFgV7MNptKNIzi2_i-sG2qEq3RyQ)](https://youtu.be/JOxnR0nhxSE)
 
-### Executing program
 
-* How to run the program
-* Step-by-step bullets
-```
-code blocks for commands
-```
-
-## Help
-
-Any advise for common problems or issues.
-```
-command to run if program contains helper info
-```
-
-## Authors
-
-Contributors names and contact info
-
-ex. Dominique Pizzie  
-ex. [@DomPizzie](https://twitter.com/dompizzie)
 
 ## Version History
 
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
-    * Initial Release
+* 1.0 - ITERATION 1 (Nov 20)
+    * Various bug fixes and database implemented
+    * Meeting to discuss future implementations for Iteration 2
+    * Implemented own functionalities according to figma prototype
+    * Split work for each person
+* 0.1 - ITERATION 0 (Nov 6th)
+    * Initial project pitch
+    * Figma prototype created
+    * Project template pushed onto github
+    * Contributors Github information added
 
-## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
-
-## Acknowledgments
-
-Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
