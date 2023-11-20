@@ -84,7 +84,7 @@ class EventsFragment : Fragment() {
         val timestamp = Timestamp(calendar.time)
         val job = hashMapOf(
             "app_status" to "Interviewing",
-            "company_name" to "Stripe",
+            "company_name" to "Meta",
             "date_applied" to timestamp,
             "date_interview" to null,
             "date_offer" to null,
