@@ -26,7 +26,7 @@ Katherine Sun, ksa138@sfu.ca
 
 
 
-## Version History
+## Version And Timeline
 
 * 1.0 - ITERATION 1 (Nov 20)
     * Various bug fixes and database implemented
