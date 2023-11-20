@@ -29,4 +29,7 @@
         <item>Bar Graph View</item>
         <item>Sankey Diagram View</item>
     </string-array>
+
+    <string name="history_graph_goto">Graphs</string>
+    <string name="history_graph_export">Export</string>
 </resources>

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_marginTop="?android:attr/actionBarSize"
+    android:background="?android:windowBackground"
     tools:context=".ui.home.HomeFragment">
 
     <Spinner
@@ -14,20 +15,22 @@
         style="@style/Widget.AppCompat.Spinner.Underlined"
         />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/history_graph_chart"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="PLACEHOLDER, GRAPH GOES HERE"
-        android:layout_below="@id/history_graph_mode_spinner"/>
+        android:layout_below="@id/history_graph_mode_spinner"
+        android:layout_alignBottom="@id/history_export_button"
+        android:layout_marginBottom="50dp"
+        android:layout_centerHorizontal="true" />
 
-    <View
-        android:id="@+id/history_graph_spacer"
-        android:layout_width="0dp"
-        android:layout_height="500dp" />
     <Button
         android:id="@+id/history_export_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="50dp"
-        android:layout_alignBottom="@id/history_graph_spacer"/>
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginBottom="150dp"
+        android:layout_alignParentBottom="true"
+        android:text="@string/history_graph_export" />
 </RelativeLayout>

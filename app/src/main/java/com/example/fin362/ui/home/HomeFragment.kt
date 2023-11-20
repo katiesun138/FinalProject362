@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
@@ -73,6 +74,13 @@ class HomeFragment : Fragment() {
 
         spinnerSetup(view)
         historyDetailSetup(view)
+
+        view.findViewById<Button>(R.id.history_graph_goto).setOnClickListener{
+            val fragTransaction = requireActivity().supportFragmentManager.beginTransaction()
+            fragTransaction.replace(R.id.history_container, HomeGraphView())
+            fragTransaction.addToBackStack(null)
+            fragTransaction.commit()
+        }
 
         return view
     }

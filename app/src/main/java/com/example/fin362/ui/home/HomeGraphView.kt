@@ -10,19 +10,14 @@ import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.fin362.R
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.utils.ColorTemplate
 
 class HomeGraphView : Fragment() {
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        val homeGraphViewModel =
-            ViewModelProvider(this)[HomeGraphViewModel::class.java]
-
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_home_graph_view, container, false)
-
+    private lateinit var viewModel: HomeGraphViewModel
+    private fun createSpinner(view: View) {
         val graphTypeSpinner = view.findViewById<Spinner>(R.id.history_graph_mode_spinner)
 
         ArrayAdapter.createFromResource(
@@ -40,9 +35,51 @@ class HomeGraphView : Fragment() {
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                homeGraphViewModel.graphType = position
+                viewModel.graphType = position
             }
         }
+    }
+
+    private fun createPieChart(view: View){
+        val chart = view.findViewById<com.github.mikephil.charting.charts.PieChart>(
+            R.id.history_graph_chart)
+
+        val entries: ArrayList<PieEntry> = ArrayList()
+
+        entries.add(PieEntry(127f, "Applied"))
+        entries.add(PieEntry(17f, "Interviewed"))
+        entries.add(PieEntry(27f, "Rejected"))
+        entries.add(PieEntry(2f, "Offer"))
+
+        val dataSet = PieDataSet(entries, "Application History")
+        dataSet.sliceSpace = 4f
+
+        for(i in ColorTemplate.PASTEL_COLORS) {
+            dataSet.colors.add(i)
+        }
+
+        dataSet.setDrawIcons(true)
+        dataSet.setDrawValues(true)
+        dataSet.valueTextSize = 20f
+
+        chart.data = PieData(dataSet)
+        chart.setEntryLabelColor(R.color.black)
+        chart.setEntryLabelTextSize(15f)
+        chart.holeRadius = 50f
+        chart.setUsePercentValues(false)
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        viewModel = ViewModelProvider(this)[HomeGraphViewModel::class.java]
+
+        // Inflate the layout for this fragment
+        val view = inflater.inflate(R.layout.fragment_home_graph_view, container, false)
+
+        createSpinner(view)
+        createPieChart(view)
 
         return view
     }
