@@ -1,19 +1,22 @@
 # Project Title
 
-Simple overview of use/purpose.
+JobCentral
 
 ## Description
 
-An in-depth paragraph about your project and overview of use.
+Job Central revolutionizes the job search by centralizing diverse job postings in one user-friendly platform. Seamlessly track your application progress and discover a multitude of opportunities, streamlining the path to your next career move. Simplify your job search with Job Central – where finding and applying for jobs is efficient, transparent, and tailored for success.
+
+
+### Contributers
+Group 12: 
+Kevin Liu, kla155@sfu.ca
+Alice McCollum, aom1@sfu.ca
+Yigao Zhao, yza557@sfu.ca
+Katherine Sun, ksa138@sfu.ca
 
 ## Project Pitch
-[![Watch the video](https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg)](https://youtu.be/b6qk3J34yzA)
+[![Watch the video]([https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg](https://i.ytimg.com/vi/b6qk3J34yzA/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH4CYAC0AWKAgwIABABGEYgVChlMA8=&amp;rs=AOn4CLA66CPUlAppcAZWLgQ3P4icqb2nJQ))](https://youtu.be/b6qk3J34yzA)
 
-
-### Dependencies
-
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
 
 ### Installing
 
