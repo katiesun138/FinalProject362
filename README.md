@@ -6,7 +6,9 @@ Simple overview of use/purpose.
 
 An in-depth paragraph about your project and overview of use.
 
-## Getting Started
+## Project Pitch
+[![Watch the video](https://img.youtube.com/vi/T-D1KVIuvjA/maxresdefault.jpg)](https://youtu.be/b6qk3J34yzA)
+
 
 ### Dependencies
 
