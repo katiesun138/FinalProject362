@@ -1,11 +1,13 @@
 package com.example.fin362.ui.events
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ListView
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
@@ -78,21 +80,51 @@ class EventsFragment : Fragment() {
         eventsListView.adapter = savedJobsAdapter
 
         // Retrieve all savedJobs
-        firebaseDBManager.getSavedJobsForUser{jobList ->
+        firebaseDBManager.getSavedJobsForUser { jobList ->
             savedJobsAdapter.updateData(jobList)
         }
 
-        // Add new job listing to saved section
         addButton.setOnClickListener {
-            firebaseDBManager.saveJob("Interviewing", "Meta", null,
-                null, null, null,
-                "Internship", "https://www.metacareers.com/v2/jobs/1007975740551656/",
-                "New York, NY", "dummy notes", "Software Engineer Co-op")
+            // Create an AlertDialog with an EditText for each parameter
+            val dialogBuilder = AlertDialog.Builder(requireContext())
+            val inflater = layoutInflater
+            val dialogView = inflater.inflate(R.layout.saved_job_input_form, null)
+            dialogBuilder.setView(dialogView)
 
-            //re-query to get the job just added to adapter listView
-            firebaseDBManager.getSavedJobsForUser{jobList ->
-                savedJobsAdapter.updateData(jobList)
+            // Reference to EditTexts in the dialog
+            val companyNameEditText = dialogView.findViewById<EditText>(R.id.companyNameEditText)
+            val positionTitleEditText = dialogView.findViewById<EditText>(R.id.positionTitleEditText)
+            val jobTypeEditText = dialogView.findViewById<EditText>(R.id.jobTypeEditText)
+            val linkEditText = dialogView.findViewById<EditText>(R.id.linkEditText)
+            val locationEditText = dialogView.findViewById<EditText>(R.id.locationEditText)
+            // Add more EditText references for other parameters
+
+            dialogBuilder.setTitle("Enter Job Information")
+            dialogBuilder.setPositiveButton("Save") { dialog, _ ->
+                val companyName = companyNameEditText.text.toString()
+                val positionTitle = positionTitleEditText.text.toString()
+                val jobType = jobTypeEditText.text.toString()
+                val link = linkEditText.text.toString()
+                val location = locationEditText.text.toString()
+
+                // Call saveJob function with user input
+                firebaseDBManager.saveJob(null, companyName, null,
+                    null, null, null, jobType, link,
+                    location, positionTitle)
+
+                // Re-query to get the job just added to the adapter listView
+                firebaseDBManager.getSavedJobsForUser { jobList ->
+                    savedJobsAdapter.updateData(jobList)
+                }
             }
+
+            dialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+                // Do nothing or add any other action on cancel
+                dialog.cancel()
+            }
+
+            val alertDialog = dialogBuilder.create()
+            alertDialog.show()
         }
 
         // swipeRefreshLayout was not designed to support listView, so we need to enable refresh

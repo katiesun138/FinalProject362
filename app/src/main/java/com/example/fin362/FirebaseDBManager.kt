@@ -24,9 +24,9 @@ class FirebaseDBManager {
         get() = auth.currentUser
 
     // Add a new job document to the user's "jobs" collection
-    fun saveJob(appStatus: String, companyName: String, dateApplied: String?, dateInterview: String?,
+    fun saveJob(appStatus: String?, companyName: String, dateApplied: String?, dateInterview: String?,
                dateOffer: String?, dateRejected: String?, jobType: String, link: String,
-               location: String, notes: String?, positionTitle: String) {
+               location: String, positionTitle: String) {
         currentUser?.let { user ->
             val usersCollection: DocumentReference = firestore.collection("users").document(user.uid)
             val newJobDocument: DocumentReference = usersCollection.collection("jobs").document()
@@ -48,7 +48,6 @@ class FirebaseDBManager {
                 "job_type" to jobType,
                 "link" to link,
                 "location" to location,
-                "notes" to notes,
                 "position_title" to positionTitle
             )
 
@@ -115,7 +114,7 @@ class FirebaseDBManager {
                         val dateSaved = document.getTimestamp("date_saved") ?: Timestamp.now()
                         val link = document.getString("link") ?: ""
 
-                        val savedJob = Job(documentId, companyName, positionTitle, location, dateSaved, link)
+                        val savedJob = Job(documentId, companyName.capitalize(), positionTitle.capitalize(), location.capitalize(), dateSaved, link)
                         jobList.add(savedJob)
                     }
 

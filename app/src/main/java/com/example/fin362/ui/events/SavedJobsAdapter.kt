@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Handler
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -85,7 +86,7 @@ class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, priv
         itemView.setOnClickListener {
             // Handle the click event to open the link and redirect in web browser
             val link = currentJob?.link
-            if (!link.isNullOrBlank()) {
+            if (!link.isNullOrBlank() && Patterns.WEB_URL.matcher(link).matches()) {
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(link))
                 context.startActivity(intent)
             }
