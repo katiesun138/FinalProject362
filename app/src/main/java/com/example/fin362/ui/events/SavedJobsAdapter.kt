@@ -95,7 +95,7 @@ class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, priv
     }
 
     private fun formatDate(date: Date): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
         return dateFormat.format(date)
     }
 

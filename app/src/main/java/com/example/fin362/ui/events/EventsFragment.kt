@@ -77,27 +77,6 @@ class EventsFragment : Fragment() {
             }})
         eventsListView.adapter = savedJobsAdapter
 
-        // Add function to create job before adding or retrieve job and format and store into object
-        // set functions to get each timestamp field
-        val calendar = Calendar.getInstance()
-        //calendar.set(2023, Calendar.NOVEMBER, 19, 0, 30)
-        val timestamp = Timestamp(calendar.time)
-        val job = hashMapOf(
-            "app_status" to "Interviewing",
-            "company_name" to "Meta",
-            "date_applied" to timestamp,
-            "date_interview" to null,
-            "date_offer" to null,
-            "date_rejected" to null,
-            "date_saved" to null,
-            "is_saved" to true,
-            "job_type" to "Internship",
-            "link" to "https://www.metacareers.com/v2/jobs/1007975740551656/",
-            "location" to "New York, NY",
-            "notes" to "some notes for meta",
-            "position_title" to "Software Engineer"
-        )
-
         // Retrieve all savedJobs
         firebaseDBManager.getSavedJobsForUser{jobList ->
             savedJobsAdapter.updateData(jobList)
@@ -105,7 +84,10 @@ class EventsFragment : Fragment() {
 
         // Add new job listing to saved section
         addButton.setOnClickListener {
-            firebaseDBManager.addJob(job)
+            firebaseDBManager.saveJob("Interviewing", "Meta", null,
+                null, null, null,
+                "Internship", "https://www.metacareers.com/v2/jobs/1007975740551656/",
+                "New York, NY", "dummy notes", "Software Engineer Co-op")
 
             //re-query to get the job just added to adapter listView
             firebaseDBManager.getSavedJobsForUser{jobList ->

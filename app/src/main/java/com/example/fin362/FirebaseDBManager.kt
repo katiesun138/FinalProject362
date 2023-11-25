@@ -9,6 +9,9 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -21,13 +24,35 @@ class FirebaseDBManager {
         get() = auth.currentUser
 
     // Add a new job document to the user's "jobs" collection
-    fun addJob(job: Any) {
+    fun saveJob(appStatus: String, companyName: String, dateApplied: String?, dateInterview: String?,
+               dateOffer: String?, dateRejected: String?, jobType: String, link: String,
+               location: String, notes: String?, positionTitle: String) {
         currentUser?.let { user ->
             val usersCollection: DocumentReference = firestore.collection("users").document(user.uid)
             val newJobDocument: DocumentReference = usersCollection.collection("jobs").document()
 
+            // Add function to create job before adding or retrieve job and format and store into object
+            // set functions to get each timestamp field
+            val calendar = Calendar.getInstance()
+            val timestamp = Timestamp(calendar.time)
 
-            newJobDocument.set(job)
+            val newJobEntry = hashMapOf(
+                "app_status" to appStatus,
+                "company_name" to companyName,
+                "date_applied" to dateApplied,
+                "date_interview" to dateInterview,
+                "date_offer" to dateOffer,
+                "date_rejected" to dateRejected,
+                "date_saved" to timestamp,
+                "is_saved" to true,
+                "job_type" to jobType,
+                "link" to link,
+                "location" to location,
+                "notes" to notes,
+                "position_title" to positionTitle
+            )
+
+            newJobDocument.set(newJobEntry)
                 .addOnSuccessListener {
                     val documentId = newJobDocument.id
                     Log.d("DB", "Job document added for user: ${user.uid}")
@@ -77,7 +102,7 @@ class FirebaseDBManager {
     fun getSavedJobsForUser(callback: (List<Job>) -> Unit) {
         currentUser?.let { user ->
             val usersCollection: CollectionReference = firestore.collection("users").document(user.uid).collection("jobs")
-            val query: Query = usersCollection.whereEqualTo("is_saved", true).orderBy("date_applied", Query.Direction.DESCENDING)
+            val query: Query = usersCollection.whereEqualTo("is_saved", true).orderBy("date_saved", Query.Direction.DESCENDING)
 
             query.get()
                 .addOnSuccessListener { documents ->
