@@ -29,6 +29,8 @@ import java.util.Locale
 class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, private val onDeleteClickListener: (position: Int, adapter: SavedJobsAdapter) -> Unit) :
     ArrayAdapter<Job>(context, resource, objects) {
 
+    var originalList: MutableList<Job> = objects.toMutableList()
+
     //TODO: Hide clearbit company logo api key
     private var clearbitApiKey = "" //clearbit company logo api key
 
@@ -105,6 +107,7 @@ class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, priv
         addAll(newList)
         notifyDataSetInvalidated()
         notifyDataSetChanged()
+        originalList = newList.toMutableList()
     }
 
     fun extractDomainFromUrl(url: String): String {
@@ -153,6 +156,25 @@ class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, priv
                 }
             }
         })
+    }
+
+    fun filter(query: String) {
+        clear()
+
+        if (query.isBlank()) {
+            // If the query is blank, show the original list
+            addAll(originalList)
+        } else {
+            // Filter jobs based on the query
+            val filteredList = originalList.filter { job ->
+                job.companyName.contains(query, ignoreCase = true) ||
+                        job.positionTitle.contains(query, ignoreCase = true) ||
+                        job.location.contains(query, ignoreCase = true)
+            }
+            addAll(filteredList)
+        }
+
+        notifyDataSetChanged()
     }
 
 }

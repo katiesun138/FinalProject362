@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:layout_marginTop="?attr/actionBarSize">
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/search_view"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_weight="1"
+        android:paddingLeft="20dp"
+        android:background="@drawable/rounded_searchbar_background"/>
+
+
+    <ImageView
+        android:id="@+id/search_filter_icon"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/ic_filter_black24"
+        android:layout_marginLeft="15dp"
+        android:background="@drawable/rounded_searchbar_background"
+        android:layout_alignParentEnd="true"
+        />
+
+</LinearLayout>
