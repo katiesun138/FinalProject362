@@ -62,7 +62,7 @@ class FirebaseDBManager {
         }
     }
 
-    suspend fun deleteJob(position: Int): Boolean {
+    suspend fun deleteJobByPosition(position: Int): Boolean {
         return suspendCoroutine { continuation ->
             currentUser?.let { user ->
                 getSavedJobsForUser { jobList ->
@@ -95,6 +95,33 @@ class FirebaseDBManager {
             }
         }
     }
+
+    suspend fun deleteJobById(documentId: String?): Boolean {
+        return suspendCoroutine { continuation ->
+            currentUser?.let { user ->
+                val usersCollection: DocumentReference =
+                    firestore.collection("users").document(user.uid)
+                val jobDocumentRef: DocumentReference =
+                    usersCollection.collection("jobs").document(documentId!!)
+
+                // Delete the document
+                jobDocumentRef.delete()
+                    .addOnSuccessListener {
+                        Log.d("DB", "Job document deleted successfully")
+                        continuation.resume(true)
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("DB", "Error deleting job document", e)
+                        continuation.resume(false)
+                    }
+            } ?: run {
+                // If currentUser is null
+                Log.e("DB", "Current user is null")
+                continuation.resume(false)
+            }
+        }
+    }
+
 
 
     // Retrieve all job documents for the user

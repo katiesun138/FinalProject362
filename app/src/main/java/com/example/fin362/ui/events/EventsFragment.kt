@@ -61,11 +61,13 @@ class EventsFragment : Fragment() {
         val savedJobsAdapter = SavedJobsAdapter(requireContext(), R.layout.saved_entry_view, ArrayList(),
             onDeleteClickListener = { position, adapter ->
                 GlobalScope.launch(Dispatchers.Main) {
-                    val deleteResult = firebaseDBManager.deleteJob(position)
+                    val deleteResult = firebaseDBManager.deleteJobById(adapter.getItem(position)?.documentId)
                     if (deleteResult) {
                         withContext(Dispatchers.IO) {
                             firebaseDBManager.getSavedJobsForUser { jobList ->
-                                adapter.originalList.removeAt(position)
+                                val deletedItemId = adapter.getItem(position)?.documentId
+                                // Remove the item from the originalList based on the document ID
+                                adapter.originalList.removeAll { it.documentId == deletedItemId }
                                 adapter.updateData(jobList)
                                 adapter.filter(searchBar.query.toString())
                             }
@@ -139,6 +141,7 @@ class EventsFragment : Fragment() {
                         firebaseDBManager.saveJob(null, companyName, null,
                             null, null, null, jobType, link,
                             location, positionTitle)
+
 
                         firebaseDBManager.getSavedJobsForUser { jobList ->
                             savedJobsAdapter.updateData(jobList)
