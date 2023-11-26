@@ -14,31 +14,32 @@
     android:scaleType="centerCrop"/>
 
     <TextView
-        android:id="@+id/companyNameTextView"
+        android:id="@+id/positionTitleTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@+id/logoImageView"
-        android:text="Company Name"
-        android:textSize="18sp"
+        android:text="Position Title"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginStart="10dp"/>
 
     <TextView
-        android:id="@+id/positionTitleTextView"
+        android:id="@+id/companyNameTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/companyNameTextView"
+        android:layout_below="@+id/positionTitleTextView"
         android:layout_toEndOf="@+id/logoImageView"
-        android:text="Position Title"
+        android:text="Company Name"
         android:textSize="14sp"
         android:layout_marginStart="10dp"/>
 
     <TextView
         android:id="@+id/locationTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/positionTitleTextView"
-        android:layout_toEndOf="@+id/logoImageView"
+        android:layout_below="@+id/dateSavedTextView"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/companyNameTextView"
         android:text="Location"
         android:textSize="14sp"
         android:layout_marginStart="10dp"/>
@@ -47,10 +48,18 @@
         android:id="@+id/dateSavedTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/locationTextView"
+        android:layout_alignBottom="@+id/positionTitleTextView"
         android:layout_alignParentEnd="true"
         android:text="Date Saved"
-        android:textSize="12sp"
+        android:textSize="14sp"
+        android:layout_marginStart="10dp"/>
+
+    <TextView
+        android:id="@+id/emptyLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/companyNameTextView"
+        android:layout_toEndOf="@+id/logoImageView"
         android:layout_marginStart="10dp"/>
 
     <ImageButton
@@ -58,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignBottom="@+id/companyNameTextView"
+        android:layout_alignBottom="@+id/emptyLine"
         android:src="@drawable/ic_delete"
         android:background="@color/fui_transparent"
         android:contentDescription="Delete Icon"
