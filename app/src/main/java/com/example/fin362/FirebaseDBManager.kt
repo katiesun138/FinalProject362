@@ -152,4 +152,32 @@ class FirebaseDBManager {
                 }
         }
     }
+
+    fun saveProfile( name: String,email:String) {
+        currentUser?.let { user ->
+            val usersCollection: DocumentReference = firestore.collection("users").document(user.uid)
+            val newProfileDocument: DocumentReference = usersCollection.collection("profile").document()
+
+
+            val calendar = Calendar.getInstance()
+            val timestamp = Timestamp(calendar.time)
+
+            val newProfileEntry = hashMapOf(
+                "name" to name,
+                "email" to email
+
+            )
+
+            newProfileDocument.set(newProfileEntry)
+                .addOnSuccessListener {
+                    val documentId = newProfileDocument.id
+                    Log.d("DB", "Profile document added for user: ${user.uid}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w("DB", "Error adding profile document", e)
+                }
+        }
+    }
+
+
 }
