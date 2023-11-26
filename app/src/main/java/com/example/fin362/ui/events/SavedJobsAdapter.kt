@@ -25,6 +25,7 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, private val onDeleteClickListener: (position: Int, adapter: SavedJobsAdapter) -> Unit) :
     ArrayAdapter<Job>(context, resource, objects) {
@@ -35,7 +36,7 @@ class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, priv
     private var clearbitApiKey = "" //clearbit company logo api key
 
     //cache for logos so we don't have async fetching issues
-    private val logoCache = HashMap<String, String?>()
+    private val logoCache = ConcurrentHashMap<String, String?>()
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val itemView = convertView ?: LayoutInflater.from(context)
             .inflate(R.layout.saved_entry_view, parent, false)
@@ -48,27 +49,30 @@ class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, priv
         val locationTextView: TextView = itemView.findViewById(R.id.locationTextView)
         val dateSavedTextView: TextView = itemView.findViewById(R.id.dateSavedTextView)
         val companyLogoImageView: ImageView = itemView.findViewById(R.id.logoImageView)
-        companyLogoImageView.tag = currentJob.companyName
+        companyLogoImageView.tag = currentJob.companyName+position
         val searchDomain = "www." + currentJob.companyName + ".com"
 
         val logoUrl = logoCache[currentJob.companyName]
         if(logoUrl == "placeholder") {
             companyLogoImageView.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
-        } else if (logoUrl != null && logoUrl!= "placeholder") {
+        } else if (logoUrl != null && logoUrl != "placeholder") {
             // Load the company logo from the cache
             Picasso.get().load(logoUrl).into(companyLogoImageView)
         } else {
             // Fetch the company logo and store the URL in the cache
             fetchCompanyLogo(searchDomain) { fetchedLogoUrl ->
-                if (fetchedLogoUrl != null && companyLogoImageView.tag == currentJob.companyName) {
+                if (fetchedLogoUrl != null && companyLogoImageView.tag == currentJob.companyName+position) {
                     // Load the company logo
                     Picasso.get().load(fetchedLogoUrl).into(companyLogoImageView)
                     // Cache the logo URL
                     logoCache[currentJob.companyName] = fetchedLogoUrl
-                } else {
+                } else if ( fetchedLogoUrl == null && companyLogoImageView.tag == currentJob.companyName + position) {
                     // Use the default placeholder drawable
                     companyLogoImageView.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
-                    logoCache[currentJob.companyName] = "placeholder"
+                    //prevent accidental overwrite for existing companyNames with logos
+                    if (!logoCache.containsKey(currentJob.companyName)) {
+                        logoCache[currentJob.companyName] = "placeholder"
+                    }
                 }
             }
         }
