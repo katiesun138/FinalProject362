@@ -47,13 +47,14 @@
         <ListView
             android:id="@+id/event_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@id/search_bar"
-            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
             android:layout_weight="1"
-            android:layout_above="@+id/navigation_bar_placeholder"/>
+            android:layout_above="@+id/navigation_bar_placeholder"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="12dp"/>
 
-        <!--layout_height needs to be dynamic to navbar height if possible-->
         <View
             android:id="@+id/navigation_bar_placeholder"
             android:layout_width="match_parent"
