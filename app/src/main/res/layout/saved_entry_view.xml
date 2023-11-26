@@ -20,11 +20,11 @@
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_company_placeholder_black_24dp"
-        android:scaleType="centerCrop"/>
+            android:scaleType="centerCrop"/>
 
         <TextView
             android:id="@+id/positionTitleTextView"
-            android:layout_width="match_parent"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/logoImageView"
             android:text="Position Title"
@@ -34,7 +34,7 @@
 
         <TextView
             android:id="@+id/companyNameTextView"
-            android:layout_width="match_parent"
+            android:layout_width="220dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/positionTitleTextView"
             android:layout_toEndOf="@+id/logoImageView"
@@ -48,7 +48,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/dateSavedTextView"
             android:layout_alignParentEnd="true"
-            android:layout_alignBottom="@+id/companyNameTextView"
             android:text="Location"
             android:textSize="14sp"
             android:layout_marginStart="10dp"/>
@@ -57,7 +56,7 @@
             android:id="@+id/dateSavedTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/positionTitleTextView"
+            android:layout_alignTop="@+id/positionTitleTextView"
             android:layout_alignParentEnd="true"
             android:text="Date Saved"
             android:textSize="14sp"
@@ -71,15 +70,15 @@
             android:layout_toEndOf="@+id/logoImageView"
             android:layout_marginStart="10dp"/>
 
-        <ImageButton
-            android:id="@+id/deleteIconImageView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignBottom="@+id/emptyLine"
-            android:src="@drawable/ic_delete"
-            android:background="@color/fui_transparent"
-            android:contentDescription="Delete Icon"
-            android:layout_marginStart="10dp" />
+<!--        <ImageButton-->
+<!--            android:id="@+id/deleteIconImageView"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentEnd="true"-->
+<!--            android:layout_alignBottom="@+id/emptyLine"-->
+<!--            android:src="@drawable/ic_delete"-->
+<!--            android:background="@color/fui_transparent"-->
+<!--            android:contentDescription="Delete Icon"-->
+<!--            android:layout_marginStart="10dp" />-->
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

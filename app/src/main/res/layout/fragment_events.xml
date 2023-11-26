@@ -44,13 +44,14 @@
             layout="@layout/search_bar" />
 
 
-        <ListView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/event_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/search_bar"
             android:layout_marginBottom="5dp"
             android:layout_weight="1"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:layout_above="@+id/navigation_bar_placeholder"
             android:divider="@android:color/transparent"
             android:dividerHeight="12dp"/>

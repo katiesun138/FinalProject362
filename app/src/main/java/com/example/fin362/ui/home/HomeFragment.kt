@@ -42,7 +42,7 @@ class CardViewAdapter(jobList: List<Job>, parentActivity: FragmentActivity) : Re
             jobBundle.putString("jobTitle", job.positionTitle)
             jobBundle.putString("jobLocation", job.location)
             jobBundle.putString("documentId", job.documentId)
-            jobBundle.putString("jobDate", job.dateSaved.toDate().toString())
+            jobBundle.putString("jobDate", job.dateSaved!!.toDate().toString())
             jobBundle.putString("link", job.link)
 
             val fragTransaction = internalParentActivity.supportFragmentManager.beginTransaction()
@@ -57,7 +57,7 @@ class CardViewAdapter(jobList: List<Job>, parentActivity: FragmentActivity) : Re
         holder.itemView.findViewById<TextView>(R.id.history_job_location).text = job.location
 
         val dateFormat = SimpleDateFormat("LLL dd yyyy")
-        val formattedDate = dateFormat.format(job.dateSaved.toDate()).toString()
+        val formattedDate = dateFormat.format(job.dateSaved!!.toDate()).toString()
         holder.itemView.findViewById<TextView>(R.id.history_job_date).text = formattedDate
 
         //TODO:
@@ -117,7 +117,7 @@ class HomeFragment : Fragment() {
                for(i in 0..10){
                    val time = com.google.firebase.Timestamp(0,0)
 
-                   val job = Job(i.toString(), i.toString(), "!!PLACEHOLDER DATA!!", i.toString(), time, "link")
+                   val job = Job(i.toString(), i.toString(), "!!PLACEHOLDER DATA!!", i.toString(), time, "link", "jobType", "appStatus", time, time, time, time, false)
                    viewModel.jobs += job
                }
 

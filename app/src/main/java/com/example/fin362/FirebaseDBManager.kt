@@ -24,8 +24,8 @@ class FirebaseDBManager {
         get() = auth.currentUser
 
     // Add a new job document to the user's "jobs" collection
-    fun saveJob(appStatus: String?, companyName: String, dateApplied: String?, dateInterview: String?,
-               dateOffer: String?, dateRejected: String?, jobType: String, link: String,
+    fun saveJob(appStatus: String?, companyName: String, dateSaved: Timestamp?, dateApplied: Timestamp?, dateInterview: Timestamp?,
+               dateOffer: Timestamp?, dateRejected: Timestamp?, jobType: String, link: String,
                location: String, positionTitle: String) {
         currentUser?.let { user ->
             val usersCollection: DocumentReference = firestore.collection("users").document(user.uid)
@@ -33,8 +33,6 @@ class FirebaseDBManager {
 
             // Add function to create job before adding or retrieve job and format and store into object
             // set functions to get each timestamp field
-            val calendar = Calendar.getInstance()
-            val timestamp = Timestamp(calendar.time)
 
             val newJobEntry = hashMapOf(
                 "app_status" to appStatus,
@@ -43,7 +41,7 @@ class FirebaseDBManager {
                 "date_interview" to dateInterview,
                 "date_offer" to dateOffer,
                 "date_rejected" to dateRejected,
-                "date_saved" to timestamp,
+                "date_saved" to dateSaved,
                 "is_saved" to true,
                 "job_type" to jobType,
                 "link" to link,
@@ -61,6 +59,39 @@ class FirebaseDBManager {
                 }
         }
     }
+
+    fun updateJob(documentId: String, appStatus: String?, companyName: String, dateSaved: Timestamp?, dateApplied: Timestamp?, dateInterview: Timestamp?,
+        dateOffer: Timestamp?, dateRejected: Timestamp?, jobType: String, link: String,
+        location: String, positionTitle: String) {
+        currentUser?.let { user ->
+            val usersCollection: DocumentReference = firestore.collection("users").document(user.uid)
+            val jobDocument: DocumentReference = usersCollection.collection("jobs").document(documentId)
+
+            val updatedJobEntry = hashMapOf(
+                "app_status" to appStatus,
+                "company_name" to companyName,
+                "date_applied" to dateApplied,
+                "date_interview" to dateInterview,
+                "date_offer" to dateOffer,
+                "date_rejected" to dateRejected,
+                "date_saved" to dateSaved,
+                "is_saved" to true,
+                "job_type" to jobType,
+                "link" to link,
+                "location" to location,
+                "position_title" to positionTitle
+            )
+
+            jobDocument.update(updatedJobEntry as Map<String, Any>)
+                .addOnSuccessListener {
+                    Log.d("DB", "Job document updated for user: ${user.uid}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w("DB", "Error updating job document", e)
+                }
+        }
+    }
+
 
     suspend fun deleteJobByPosition(position: Int): Boolean {
         return suspendCoroutine { continuation ->
@@ -138,10 +169,19 @@ class FirebaseDBManager {
                         val companyName = document.getString("company_name") ?: ""
                         val positionTitle = document.getString("position_title") ?: ""
                         val location = document.getString("location") ?: ""
-                        val dateSaved = document.getTimestamp("date_saved") ?: Timestamp.now()
+                        val dateSaved = document.getTimestamp("date_saved") ?: null
                         val link = document.getString("link") ?: ""
+                        val jobType = document.getString("job_type") ?: ""
+                        val appStatus = document.getString("app_status") ?: null
+                        val dateApplied = document.getTimestamp("date_applied") ?: null
+                        val dateInterview = document.getTimestamp("date_interview") ?: null
+                        val dateOffer = document.getTimestamp("date_offer") ?: null
+                        val dateRejected = document.getTimestamp("date_rejected") ?: null
+                        val isSaved = document.getBoolean("is_saved") ?: null
 
-                        val savedJob = Job(documentId, companyName.capitalize(), positionTitle.capitalize(), location.capitalize(), dateSaved, link)
+                        val savedJob = Job(documentId, companyName.capitalize(), positionTitle.capitalize(),
+                            location.capitalize(), dateSaved, link, jobType, appStatus, dateApplied,
+                            dateInterview, dateOffer, dateRejected, isSaved)
                         jobList.add(savedJob)
                     }
 

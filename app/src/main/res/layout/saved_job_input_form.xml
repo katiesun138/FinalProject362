@@ -10,35 +10,35 @@
         android:id="@+id/company_name_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Company Name:"
+        android:hint="Company Name"
         android:inputType="text"/>
 
     <EditText
         android:id="@+id/position_title_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Position Title:"
+        android:hint="Position Title"
         android:inputType="text"/>
 
     <EditText
         android:id="@+id/job_type_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Job Type:"
+        android:hint="Job Type"
         android:inputType="text"/>
 
     <EditText
         android:id="@+id/link_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Link:"
+        android:hint="Link"
         android:inputType="text"/>
 
     <EditText
         android:id="@+id/location_edit_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Location:"
+        android:hint="Location"
         android:inputType="text"/>
 
     <TextView

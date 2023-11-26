@@ -1,90 +1,160 @@
 package com.example.fin362.ui.events
 
 import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AbsListView
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.fin362.FirebaseDBManager
 import com.example.fin362.R
-import com.google.firebase.Firebase
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
+import java.util.Calendar
 
 data class Job(
     val documentId: String,
     val companyName: String,
     val positionTitle: String,
     val location: String,
-    val dateSaved: Timestamp,
-    val link: String
+    val dateSaved: Timestamp?,
+    val link: String,
+    val jobType: String,
+    val appStatus: String?,
+    val dateApplied: Timestamp?,
+    val dateInterview: Timestamp?,
+    val dateOffer: Timestamp?,
+    val dateRejected: Timestamp?,
+    val isSaved: Boolean?
 )
 
 class EventsFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    val firebaseDBManager = FirebaseDBManager()
+
+    private lateinit var searchBar: SearchView
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         val eventView = inflater.inflate(R.layout.fragment_events, container, false)
-
-        // Initialize firebase database
-        val firebaseDBManager = FirebaseDBManager()
-        auth = Firebase.auth
-
-        // Get currentUser ID
-        val currentUser = auth.currentUser
-        val swipeRefreshLayout: SwipeRefreshLayout = eventView.findViewById(R.id.event_swipeLayout)
-        val eventsListView: ListView = eventView.findViewById(R.id.event_list)
-        val addButton: Button = eventView.findViewById(R.id.event_add_button)
-        val searchBar: SearchView = eventView.findViewById(R.id.search_view)
+        searchBar = eventView.findViewById(R.id.search_view)
         searchBar.queryHint = "Search..."
+        // Initialize firebase database
+        auth = FirebaseAuth.getInstance()
 
-        //setup custom savedJobsAdapter
-        val savedJobsAdapter = SavedJobsAdapter(requireContext(), R.layout.saved_entry_view, ArrayList(),
-            onDeleteClickListener = { position, adapter ->
-                GlobalScope.launch(Dispatchers.Main) {
-                    val deleteResult = firebaseDBManager.deleteJobById(adapter.getItem(position)?.documentId)
-                    if (deleteResult) {
-                        withContext(Dispatchers.IO) {
-                            firebaseDBManager.getSavedJobsForUser { jobList ->
-                                val deletedItemId = adapter.getItem(position)?.documentId
-                                // Remove the item from the originalList based on the document ID
-                                adapter.originalList.removeAll { it.documentId == deletedItemId }
-                                adapter.updateData(jobList)
-                                adapter.filter(searchBar.query.toString())
+        val eventsRecyclerView: RecyclerView = eventView.findViewById(R.id.event_list)
+        eventsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        val savedJobsAdapter = SavedJobsAdapter(requireContext(), onDeleteClickListener={ position, adapter ->
+            GlobalScope.launch(Dispatchers.Main) {
+                val deleteResult =
+                    firebaseDBManager.deleteJobById(adapter.getItem(position)?.documentId)
+                if (deleteResult) {
+                    withContext(Dispatchers.IO) {
+                        firebaseDBManager.getSavedJobsForUser { jobList ->
+                            val deletedItemId = adapter.getItem(position)?.documentId
+                            // Remove the item from the originalList based on the document ID
+                            adapter.originalList.removeAll { it.documentId == deletedItemId }
+                            adapter.updateData(jobList)
+                            adapter.filter(searchBar.query.toString())
+                        }
+                    }
+                }
+            }
+        })
+
+        eventsRecyclerView.adapter = savedJobsAdapter
+
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                // Not used for swipe-to-delete
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val jobEntry = savedJobsAdapter.getItem(position)
+
+                when (direction) {
+                    ItemTouchHelper.LEFT -> {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            withContext(Dispatchers.IO) {
+                                // Use GlobalScope for the background task
+                                val deleteResult = GlobalScope.async {
+                                    firebaseDBManager.deleteJobById(jobEntry?.documentId)
+                                }.await()
+
+                                if (deleteResult) {
+                                    firebaseDBManager.getSavedJobsForUser { jobList ->
+                                        savedJobsAdapter.updateData(jobList)
+                                        // Update adapter data on the main thread
+                                        savedJobsAdapter.originalList.removeAll { it.documentId == jobEntry?.documentId }
+                                        savedJobsAdapter.updateData(jobList)
+                                        savedJobsAdapter.filter(searchBar.query.toString())
+                                    }
+
+                                    showUndoSnackbar(jobEntry, position, eventView, savedJobsAdapter, searchBar)
+                                }
                             }
                         }
                     }
-            }})
-        eventsListView.adapter = savedJobsAdapter
+                    ItemTouchHelper.RIGHT -> {
+                        val jobLink = savedJobsAdapter.getItem(position)?.link
+                        if (!jobLink.isNullOrBlank() && Patterns.WEB_URL.matcher(jobLink).matches()) {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(jobLink))
+                            context?.startActivity(intent)
+                            eventsRecyclerView.adapter?.notifyItemChanged(position)
+                        } else {
+                            // Reset the item's position to simulate bounce back
+                            eventsRecyclerView.adapter?.notifyItemChanged(position)
+                            Toast.makeText(context, "No link added for this job", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        })
+
+        itemTouchHelper.attachToRecyclerView(eventsRecyclerView)
 
         // Retrieve all savedJobs
         firebaseDBManager.getSavedJobsForUser { jobList ->
             savedJobsAdapter.updateData(jobList)
         }
 
-        // make entire searchbar clickable
-        searchBar.setOnClickListener(View.OnClickListener { searchBar.setIconified(false) })
+        // make entire search bar clickable
+        searchBar.setOnClickListener(View.OnClickListener { searchBar.isIconified = false })
 
-        //set up searchbar filtering on query change
+        // set up search bar filtering on query change
         searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 // Handle submission if needed
@@ -98,6 +168,7 @@ class EventsFragment : Fragment() {
             }
         })
 
+        val addButton: Button = eventView.findViewById(R.id.event_add_button)
         addButton.setOnClickListener {
             val dialogBuilder = AlertDialog.Builder(requireContext())
             val inflater = layoutInflater
@@ -138,13 +209,19 @@ class EventsFragment : Fragment() {
                         errorMessageTextView.text = "All fields are required"
                     } else {
                         // Call saveJob function with user input
-                        firebaseDBManager.saveJob(null, companyName, null,
-                            null, null, null, jobType, link,
-                            location, positionTitle)
 
+                        val calendar = Calendar.getInstance()
+                        val dateSavedTimestamp = Timestamp(calendar.time)
+
+                        firebaseDBManager.saveJob(
+                            null, companyName, dateSavedTimestamp,null,
+                            null, null, null, jobType, link,
+                            location, positionTitle
+                        )
 
                         firebaseDBManager.getSavedJobsForUser { jobList ->
                             savedJobsAdapter.updateData(jobList)
+                            savedJobsAdapter.filter(searchBar.query.toString())
                         }
 
                         alertDialog.dismiss()
@@ -154,35 +231,73 @@ class EventsFragment : Fragment() {
             alertDialog.show()
         }
 
-        // swipeRefreshLayout was not designed to support listView, so we need to enable refresh
-        // only when listView's top position is in view, otherwise we get odd behavior scrolling both
-        // source: https://stackoverflow.com/questions/32030998/cant-go-up-in-listview-because-swiperefreshlayout
-        eventsListView.setOnScrollListener(object : AbsListView.OnScrollListener {
-            override fun onScrollStateChanged(view: AbsListView, scrollState: Int) {}
-            override fun onScroll(
-                view: AbsListView,
-                firstVisibleItem: Int,
-                visibleItemCount: Int,
-                totalItemCount: Int
+        val swipeRefreshLayout: SwipeRefreshLayout = eventView.findViewById(R.id.event_swipeLayout)
+
+        eventsRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {}
+
+            override fun onScrolled(
+                recyclerView: RecyclerView, dx: Int, dy: Int
             ) {
-                val topRowVerticalPosition =
-                    if (eventsListView == null || eventsListView.getChildCount() === 0) 0 else eventsListView.getChildAt(
-                        0
-                    ).getTop()
-                swipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0)
+                val firstVisibleItemPosition =
+                    (eventsRecyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                val topRowVerticalPosition = if (eventsRecyclerView.childCount == 0 || firstVisibleItemPosition == 0) {
+                    0
+                } else {
+                    eventsRecyclerView.getChildAt(0).top
+                }
+                swipeRefreshLayout.isEnabled = firstVisibleItemPosition == 0 && topRowVerticalPosition >= 0
             }
         })
 
         swipeRefreshLayout.setOnRefreshListener {
-            val currentFilterQuery = searchBar.query.toString()
-
-            firebaseDBManager.getSavedJobsForUser{jobList ->
+            firebaseDBManager.getSavedJobsForUser { jobList ->
                 savedJobsAdapter.updateData(jobList)
-                savedJobsAdapter.filter(currentFilterQuery)
+                savedJobsAdapter.filter(searchBar.query.toString())
             }
             swipeRefreshLayout.isRefreshing = false
         }
 
         return eventView
     }
+
+    fun showUndoSnackbar(deletedItem: Job?, position: Int, eventView: View, savedJobsAdapter: SavedJobsAdapter, searchBar: SearchView) {
+        deletedItem?.let {
+            val snackbar = Snackbar.make(
+                eventView,
+                "Job deleted",
+                Snackbar.LENGTH_LONG
+            )
+            snackbar.setAction("Undo") {
+                // Handle the "Undo" action
+                firebaseDBManager.saveJob(
+                    deletedItem.appStatus,
+                    deletedItem.companyName,
+                    deletedItem.dateSaved,
+                    deletedItem.dateApplied,
+                    deletedItem.dateInterview,
+                    deletedItem.dateOffer,
+                    deletedItem.dateRejected,
+                    deletedItem.jobType,
+                    deletedItem.link,
+                    deletedItem.location,
+                    deletedItem.positionTitle
+                )
+
+                firebaseDBManager.getSavedJobsForUser { jobList ->
+                    savedJobsAdapter.updateData(jobList)
+                    savedJobsAdapter.filter(searchBar.query.toString())
+                }
+
+            }
+            snackbar.show()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Clear the search query when the fragment is resumed
+        searchBar.setQuery("", false)
+    }
+
 }
