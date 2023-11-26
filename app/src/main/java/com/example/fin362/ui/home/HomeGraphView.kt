@@ -6,10 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.FrameLayout
 import android.widget.Spinner
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.fin362.R
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
@@ -36,14 +39,28 @@ class HomeGraphView : Fragment() {
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 viewModel.graphType = position
+
+                when(position){
+                    0 -> createPieChart(view!!)
+                    1 -> createBarChart(view!!)
+                }
             }
         }
     }
 
-    private fun createPieChart(view: View){
-        val chart = view.findViewById<com.github.mikephil.charting.charts.PieChart>(
-            R.id.history_graph_chart)
+    private fun createBarChart(view: View){
+        val chartFrame = view.findViewById<FrameLayout>(R.id.history_graph_chart)
+        val chart = com.github.mikephil.charting.charts.PieChart(requireContext())
+        val entries: ArrayList<BarEntry> = ArrayList()
 
+        val dataSet = BarDataSet(entries, "Application History")
+
+        //TODO: Finish this.
+    }
+
+    private fun createPieChart(view: View){
+        val chartFrame = view.findViewById<FrameLayout>(R.id.history_graph_chart)
+        val chart = com.github.mikephil.charting.charts.PieChart(requireContext())
         val entries: ArrayList<PieEntry> = ArrayList()
 
         entries.add(PieEntry(127f, "Applied"))
@@ -67,6 +84,8 @@ class HomeGraphView : Fragment() {
         chart.setEntryLabelTextSize(15f)
         chart.holeRadius = 50f
         chart.setUsePercentValues(false)
+
+        chartFrame.addView(chart)
     }
 
     override fun onCreateView(

@@ -15,7 +15,7 @@
         style="@style/Widget.AppCompat.Spinner.Underlined"
         />
 
-    <com.github.mikephil.charting.charts.PieChart
+    <FrameLayout
         android:id="@+id/history_graph_chart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
