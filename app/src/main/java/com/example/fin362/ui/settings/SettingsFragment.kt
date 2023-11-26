@@ -80,6 +80,14 @@ class SettingsFragment : Fragment() {
             val intent = Intent(this.context, EditResumeActivity().javaClass)
             startActivity(intent)
         }
+        val editInfoTextView: TextView =binding.tvEditInfo
+        editInfoTextView.setOnClickListener{
+            val myDialog = InputDialog()
+            val bundle = Bundle()
+            bundle.putInt(InputDialog.DIALOG_KEY, InputDialog.TEST_DIALOG)
+            myDialog.arguments = bundle
+            myDialog.show(parentFragmentManager, "input dialog")
+        }
 
         return root
     }
