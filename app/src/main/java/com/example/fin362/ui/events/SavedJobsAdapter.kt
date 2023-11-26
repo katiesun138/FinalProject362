@@ -42,15 +42,16 @@ class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, priv
 
         clearbitApiKey = context.getString(R.string.clearbit_api_key)
 
-        val currentJob = getItem(position)
+        val currentJob = getItem(position)!!
         val companyNameTextView: TextView = itemView.findViewById(R.id.companyNameTextView)
         val positionTitleTextView: TextView = itemView.findViewById(R.id.positionTitleTextView)
         val locationTextView: TextView = itemView.findViewById(R.id.locationTextView)
         val dateSavedTextView: TextView = itemView.findViewById(R.id.dateSavedTextView)
         val companyLogoImageView: ImageView = itemView.findViewById(R.id.logoImageView)
-        val searchDomain = "www." + currentJob?.companyName.toString() + ".com"
+        companyLogoImageView.tag = currentJob.companyName
+        val searchDomain = "www." + currentJob.companyName + ".com"
 
-        val logoUrl = logoCache[searchDomain]
+        val logoUrl = logoCache[currentJob.companyName]
         if(logoUrl == "placeholder") {
             companyLogoImageView.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
         } else if (logoUrl != null && logoUrl!= "placeholder") {
@@ -59,15 +60,15 @@ class SavedJobsAdapter(context: Context, resource: Int, objects: List<Job>, priv
         } else {
             // Fetch the company logo and store the URL in the cache
             fetchCompanyLogo(searchDomain) { fetchedLogoUrl ->
-                if (fetchedLogoUrl != null) {
+                if (fetchedLogoUrl != null && companyLogoImageView.tag == currentJob.companyName) {
                     // Load the company logo
                     Picasso.get().load(fetchedLogoUrl).into(companyLogoImageView)
                     // Cache the logo URL
-                    logoCache[searchDomain] = fetchedLogoUrl
+                    logoCache[currentJob.companyName] = fetchedLogoUrl
                 } else {
                     // Use the default placeholder drawable
                     companyLogoImageView.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
-                    logoCache[searchDomain] = "placeholder"
+                    logoCache[currentJob.companyName] = "placeholder"
                 }
             }
         }
