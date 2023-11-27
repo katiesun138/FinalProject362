@@ -24,10 +24,17 @@ Katherine Sun, ksa138@sfu.ca
 ### Show and Tell 1
 [![Watch the video](https://i.ytimg.com/vi/JOxnR0nhxSE/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH4CYAC0AWKAgwIABABGDQgVCh_MA8=&rs=AOn4CLDFgV7MNptKNIzi2_i-sG2qEq3RyQ)](https://youtu.be/JOxnR0nhxSE)
 
+### Show and Tell 1
+[![Watch the video](https://i.ytimg.com/vi/Fzz03Y_57vA/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AGyB4AC0AWKAgwIABABGGUgZShlMA8=&amp;rs=AOn4CLCsnzKDuaTqgEW-z5sN_lFzekk5Gg)](https://youtu.be/Fzz03Y_57vA)
+
 
 
 ## Version And Timeline
 
+* 1.2 - ITERATION 2 (Nov 27)
+    * Various bug fixes and database implemented
+    * Implemented own functionalities according to figma prototype
+    * Interface with the Firebase to obtain information from the DB
 * 1.0 - ITERATION 1 (Nov 20)
     * Various bug fixes and database implemented
     * Meeting to discuss future implementations for Iteration 2
