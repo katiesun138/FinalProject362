@@ -12,4 +12,5 @@ open class HomeViewModel : ViewModel() {
 
 class HomeGraphViewModel: HomeViewModel() {
     var graphType: Int = 0
+    var firstPass: Int = 0
 }

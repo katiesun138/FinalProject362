@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -9,15 +8,11 @@
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment">
-
-    <View
-        android:id="@+id/history_toolbar_padding"
-        android:layout_width="match_parent"
-        android:layout_height="?android:attr/actionBarSize"/>
+    tools:context=".ui.home.HomeFragment"
+    android:layout_marginTop="?attr/actionBarSize"
+    android:background="?android:windowBackground">
 
     <Spinner
-        android:layout_below="@id/history_toolbar_padding"
         android:id="@+id/history_view_spinner"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"

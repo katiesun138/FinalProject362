@@ -1,7 +1,6 @@
 package com.example.fin362.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
@@ -19,13 +19,26 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.fin362.R
 import com.example.fin362.databinding.FragmentHomeBinding
-import com.example.fin362.ui.events.Job
+import com.google.firebase.Timestamp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 
-class CardViewAdapter(jobList: List<Job>, parentActivity: FragmentActivity) : RecyclerView.Adapter<ViewHolder>(){
+data class JobHistory(
+    val documentId: String,
+    val companyName: String,
+    val positionTitle: String,
+    val location: String,
+    val dateSaved: Timestamp,
+    val link: String,
+    val status: String
+)
+class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentActivity: FragmentActivity) : RecyclerView.Adapter<ViewHolder>(){
     private val internalJobList = jobList
     private val internalParentActivity = parentActivity
-    private val jobCardsCreated = 0
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.home_recycled_cards, parent, false)
@@ -42,7 +55,8 @@ class CardViewAdapter(jobList: List<Job>, parentActivity: FragmentActivity) : Re
             jobBundle.putString("jobTitle", job.positionTitle)
             jobBundle.putString("jobLocation", job.location)
             jobBundle.putString("documentId", job.documentId)
-            jobBundle.putString("jobDate", job.dateSaved!!.toDate().toString())
+            jobBundle.putString("jobDate", job.dateSaved?.toDate().toString())
+            jobBundle.putString("status", job.appStatus)
             jobBundle.putString("link", job.link)
 
             val fragTransaction = internalParentActivity.supportFragmentManager.beginTransaction()
@@ -56,21 +70,36 @@ class CardViewAdapter(jobList: List<Job>, parentActivity: FragmentActivity) : Re
         holder.itemView.findViewById<TextView>(R.id.history_job_title).text = job.positionTitle
         holder.itemView.findViewById<TextView>(R.id.history_job_location).text = job.location
 
-        val dateFormat = SimpleDateFormat("LLL dd yyyy")
+        val dateFormat = SimpleDateFormat("dd/LL/yy")
         val formattedDate = dateFormat.format(job.dateSaved!!.toDate()).toString()
         holder.itemView.findViewById<TextView>(R.id.history_job_date).text = formattedDate
 
-        //TODO:
-        // Once we have a job status option in the database, add another conditional in here
-        // to change the job status badge accordingly.
+        val statusBadge = holder.itemView.findViewById<TextView>(R.id.history_job_status)
+        statusBadge.background = when(job.appStatus){
+            "Applied" ->
+                ContextCompat.getDrawable(internalParentActivity, R.drawable.history_status_applied)
+            "Interviewing" ->
+                ContextCompat.getDrawable(internalParentActivity, R.drawable.history_status_interviewing)
+            "Offer" ->
+                ContextCompat.getDrawable(internalParentActivity, R.drawable.history_status_offer)
+            "Rejected" ->
+                ContextCompat.getDrawable(internalParentActivity, R.drawable.history_status_rejected)
+            else ->
+                ContextCompat.getDrawable(internalParentActivity, R.drawable.history_status_unknown)
+        }
+
+        if(job.appStatus.isNullOrBlank()){
+            statusBadge.text = "Unknown"
+        } else {
+            statusBadge.text = job.appStatus
+        }
     }
 
     override fun getItemCount(): Int {
         return internalJobList.size
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    }
+    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
 }
 
 class HomeFragment : Fragment() {
@@ -110,24 +139,10 @@ class HomeFragment : Fragment() {
         viewModel.db.getSavedJobsForUser {
             viewModel.jobs = it
 
-            // TODO:
-            // CREATES DUMMY DATA FOR TESTING
-            // REMOVE ME EVENTUALLY
-            // Once we have actual data in Firebase, this can probably be removed.
-               for(i in 0..10){
-                   val time = com.google.firebase.Timestamp(0,0)
-
-                   val job = Job(i.toString(), i.toString(), "!!PLACEHOLDER DATA!!", i.toString(), time, "link", "jobType", "appStatus", time, time, time, time, false)
-                   viewModel.jobs += job
-               }
-
-
             val recyclerView = view.findViewById<RecyclerView>(R.id.history_recycler_container)
 
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
             recyclerView.adapter = CardViewAdapter(viewModel.jobs, requireActivity())
-
-            Log.d("listsize", viewModel.jobs.size.toString())
         }
     }
 
@@ -145,7 +160,7 @@ class HomeFragment : Fragment() {
 
         view.findViewById<Button>(R.id.history_graph_goto).setOnClickListener{
             val fragTransaction = requireActivity().supportFragmentManager.beginTransaction()
-            fragTransaction.replace(R.id.history_container, HomeGraphView())
+            fragTransaction.replace(R.id.history_container, HomeGraphView(viewModel.jobs))
             fragTransaction.addToBackStack(null)
             fragTransaction.commit()
         }
@@ -155,7 +170,13 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        listSetup(view)
+
+        // List setup all goes onto its own thread.
+        // Can't do anything with it until database responds, which is the first step of the setup.
+        // Don't want to lock up everything until it responds!
+        CoroutineScope(Job() + Dispatchers.Default).launch {
+            listSetup(view)
+        }
     }
     override fun onDestroyView() {
         super.onDestroyView()

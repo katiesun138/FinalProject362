@@ -32,4 +32,13 @@
 
     <string name="history_graph_goto">Graphs</string>
     <string name="history_graph_export">Export</string>
+    <string name="history_graph_button">Change Graph</string>
+
+    <string name="history_status_dialog_title">Change Job Status</string>
+    <string name="history_status_dialog_applied">Applied</string>
+    <string name="history_status_dialog_interviewing">Interviewing</string>
+    <string name="history_status_dialog_rejected">Rejected</string>
+    <string name="history_status_dialog_offered">Offer</string>
+    <string name="history_status_dialog_cancel">Cancel</string>
+
 </resources>

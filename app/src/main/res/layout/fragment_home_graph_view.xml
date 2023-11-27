@@ -7,19 +7,35 @@
     android:background="?android:windowBackground"
     tools:context=".ui.home.HomeFragment">
 
-    <Spinner
-        android:id="@+id/history_graph_mode_spinner"
+    <LinearLayout
+        android:id="@+id/history_graph_button_bar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
         android:layout_centerHorizontal="true"
-        style="@style/Widget.AppCompat.Spinner.Underlined"
-        />
-
+        android:layout_marginRight="50dp">
+        <Spinner
+            android:layout_weight="5"
+            android:id="@+id/history_graph_mode_spinner"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginTop="10dp"
+            style="@style/Widget.AppCompat.Spinner.Underlined"
+            />
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/history_graph_mode_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/history_graph_mode_spinner"
+            android:text="@string/history_graph_button"
+            android:textSize="15dp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+    </LinearLayout>
     <FrameLayout
         android:id="@+id/history_graph_chart"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/history_graph_mode_spinner"
+        android:layout_below="@id/history_graph_button_bar"
         android:layout_alignBottom="@id/history_export_button"
         android:layout_marginBottom="50dp"
         android:layout_centerHorizontal="true" />
