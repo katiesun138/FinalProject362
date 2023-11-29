@@ -2,9 +2,9 @@
 <resources>
     <string name="history_filter_button_all">All</string>
     <string name="history_filter_button_applied">Applied</string>
-    <string name="history_filter_button_screen">Screen</string>
-    <string name="history_filter_button_interview">Interview</string>
+    <string name="history_filter_button_interview">Interviewing</string>
     <string name="history_filter_button_offer">Offer</string>
+    <string name="history_filter_button_rejected">Rejected</string>
 
     <string name="history_job_title">Example Job Title</string>
     <string name="history_job_company_name">Example Company Name</string>

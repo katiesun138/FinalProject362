@@ -8,9 +8,10 @@ open class HomeViewModel : ViewModel() {
     var compactView: Boolean = false
     var db = FirebaseDBManager()
     var jobs: List<Job> = listOf()
+    var filteredJobs: List<Job> = listOf()
+    var filterType: String = ""
 }
 
 class HomeGraphViewModel: HomeViewModel() {
     var graphType: Int = 0
-    var firstPass: Int = 0
 }

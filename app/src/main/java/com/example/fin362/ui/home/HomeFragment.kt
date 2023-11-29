@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -19,22 +20,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.fin362.R
 import com.example.fin362.databinding.FragmentHomeBinding
-import com.google.firebase.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 
-data class JobHistory(
-    val documentId: String,
-    val companyName: String,
-    val positionTitle: String,
-    val location: String,
-    val dateSaved: Timestamp,
-    val link: String,
-    val status: String
-)
 class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentActivity: FragmentActivity) : RecyclerView.Adapter<ViewHolder>(){
     private val internalJobList = jobList
     private val internalParentActivity = parentActivity
@@ -135,14 +126,52 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun filterSetup(view: View){
+        val buttons = view.findViewById<LinearLayout>(R.id.history_filter_buttons)
+
+        // No good way to loop through this. Even if we set the filterType to a number,
+        // doing some "filterType = i" thing would lead to incorrect results
+        buttons.getChildAt(0).setOnClickListener {
+            viewModel.filterType = ""
+            listSetup(view)
+        }
+        buttons.getChildAt(1).setOnClickListener {
+            viewModel.filterType = "Applied"
+            listSetup(view)
+        }
+        buttons.getChildAt(2).setOnClickListener {
+            viewModel.filterType = "Interviewing"
+            listSetup(view)
+        }
+        buttons.getChildAt(3).setOnClickListener {
+            viewModel.filterType = "Offer"
+            listSetup(view)
+        }
+        buttons.getChildAt(4).setOnClickListener {
+            viewModel.filterType = "Rejected"
+            listSetup(view)
+        }
+    }
+
     private fun listSetup(view: View){
         viewModel.db.getSavedJobsForUser {
             viewModel.jobs = it
 
+            // Clear the filtered list first
+            viewModel.filteredJobs = listOf()
+            // Then repopulate it
+            for(i in 0..<viewModel.jobs.size){
+                if (viewModel.filterType == viewModel.jobs[i].appStatus ||
+                    viewModel.filterType == "") { // Blank filter type is 'all'
+                    viewModel.filteredJobs += viewModel.jobs[i]
+                }
+            }
+
             val recyclerView = view.findViewById<RecyclerView>(R.id.history_recycler_container)
 
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
-            recyclerView.adapter = CardViewAdapter(viewModel.jobs, requireActivity())
+            recyclerView.adapter?.notifyDataSetChanged()
+            recyclerView.adapter = CardViewAdapter(viewModel.filteredJobs, requireActivity())
         }
     }
 
@@ -157,6 +186,7 @@ class HomeFragment : Fragment() {
         val view: View = binding.root
 
         spinnerSetup(view)
+        filterSetup(view)
 
         view.findViewById<Button>(R.id.history_graph_goto).setOnClickListener{
             val fragTransaction = requireActivity().supportFragmentManager.beginTransaction()

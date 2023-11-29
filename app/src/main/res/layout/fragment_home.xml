@@ -2,8 +2,8 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:id="@+id/history_container">
 <RelativeLayout
     android:layout_width="match_parent"
@@ -24,6 +24,7 @@
         android:id="@+id/history_filter_scroll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_below="@id/history_view_spinner">
         <HorizontalScrollView
             android:layout_width="match_parent"
@@ -31,6 +32,7 @@
             android:layout_below="@id/history_view_spinner">
 
             <LinearLayout
+                android:id="@+id/history_filter_buttons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -57,16 +59,6 @@
                     style="@style/Widget.AppCompat.Light.ActionButton" />
 
                 <Button
-                    android:id="@+id/history_filter_button_screen"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingStart="25dp"
-                    android:paddingEnd="25dp"
-                    android:text="@string/history_filter_button_screen"
-                    android:textColor="@color/teal_700"
-                    style="@style/Widget.AppCompat.Light.ActionButton" />
-
-                <Button
                     android:id="@+id/history_filter_button_interview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -83,6 +75,16 @@
                     android:paddingStart="25dp"
                     android:paddingEnd="25dp"
                     android:text="@string/history_filter_button_offer"
+                    android:textColor="@color/teal_700"
+                    style="@style/Widget.AppCompat.Light.ActionButton" />
+
+                <Button
+                    android:id="@+id/history_filter_button_rejected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="25dp"
+                    android:paddingEnd="25dp"
+                    android:text="@string/history_filter_button_rejected"
                     android:textColor="@color/teal_700"
                     style="@style/Widget.AppCompat.Light.ActionButton" />
             </LinearLayout>
