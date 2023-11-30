@@ -27,9 +27,6 @@ class HomeDetail(jobBundle: Bundle) : Fragment() {
     fun saveChanges(view: View){
         val db = FirebaseDBManager()
 
-        // Delete and remake the job with our changes
-        // An update is probably better, but doesn't currently exist in FirebaseDBManager
-        // TODO: Change this to an update function
         CoroutineScope(Job() + Dispatchers.Default).launch {
             val jobStatus = view.findViewById<TextView>(R.id.history_detail_job_status_text).text.toString()
             val companyName = view.findViewById<EditText>(R.id.history_detail_company_name_text).text.toString()

@@ -1,6 +1,7 @@
 package com.example.fin362.ui.home
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import okhttp3.Call
+import okhttp3.Callback
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import java.io.IOException
 import java.text.SimpleDateFormat
 
 class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentActivity: FragmentActivity) : RecyclerView.Adapter<ViewHolder>(){
@@ -96,6 +103,8 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
+    // TODO: This will need to be changed eventually
+    private var clearbitApiKey = ""
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -133,45 +142,91 @@ class HomeFragment : Fragment() {
         // doing some "filterType = i" thing would lead to incorrect results
         buttons.getChildAt(0).setOnClickListener {
             viewModel.filterType = ""
-            listSetup(view)
+            listSetupFiltered(view)
         }
         buttons.getChildAt(1).setOnClickListener {
             viewModel.filterType = "Applied"
-            listSetup(view)
+            listSetupFiltered(view)
         }
         buttons.getChildAt(2).setOnClickListener {
             viewModel.filterType = "Interviewing"
-            listSetup(view)
+            listSetupFiltered(view)
         }
         buttons.getChildAt(3).setOnClickListener {
             viewModel.filterType = "Offer"
-            listSetup(view)
+            listSetupFiltered(view)
         }
         buttons.getChildAt(4).setOnClickListener {
             viewModel.filterType = "Rejected"
-            listSetup(view)
+            listSetupFiltered(view)
         }
+    }
+
+    // Code copied from SavedJobsAdapter.kt
+    private fun fetchCompanyLogo(companyDomain: String, callback: (String?) -> Unit) {
+        val apiUrl = "https://logo.clearbit.com/$companyDomain"
+
+        val client = OkHttpClient()
+
+        val request = Request.Builder()
+            .url(apiUrl)
+            .header("Authorization", "Bearer $clearbitApiKey")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Handle failure (e.g., network issues)
+                Handler(requireContext().mainLooper).post {
+                    callback(null)
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                // Handle the response
+                if (response.isSuccessful) {
+                    // Get the URL of the company logo
+                    val logoUrl = response.request.url.toString()
+
+                    // Use Handler to post the result back to the main thread
+                    Handler(requireContext().mainLooper).post {
+                        callback(logoUrl)
+                    }
+                } else {
+                    // Handle non-successful responses
+                    Handler(requireContext().mainLooper).post {
+                        callback(null)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun listSetupFiltered(view: View){
+        // Clear the filtered list first
+        viewModel.filteredJobs = listOf()
+        // Then repopulate it
+        for(i in 0..<viewModel.jobs.size){
+            if (viewModel.filterType == viewModel.jobs[i].appStatus ||
+                viewModel.filterType == "") { // Blank filter type is 'all'
+                viewModel.filteredJobs += viewModel.jobs[i]
+            }
+        }
+
+        val recyclerView = view.findViewById<RecyclerView>(R.id.history_recycler_container)
+
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = CardViewAdapter(viewModel.filteredJobs, requireActivity())
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 
     private fun listSetup(view: View){
         viewModel.db.getSavedJobsForUser {
             viewModel.jobs = it
 
-            // Clear the filtered list first
-            viewModel.filteredJobs = listOf()
-            // Then repopulate it
-            for(i in 0..<viewModel.jobs.size){
-                if (viewModel.filterType == viewModel.jobs[i].appStatus ||
-                    viewModel.filterType == "") { // Blank filter type is 'all'
-                    viewModel.filteredJobs += viewModel.jobs[i]
-                }
-            }
-
             val recyclerView = view.findViewById<RecyclerView>(R.id.history_recycler_container)
 
             recyclerView.layoutManager = LinearLayoutManager(requireContext())
-            recyclerView.adapter?.notifyDataSetChanged()
-            recyclerView.adapter = CardViewAdapter(viewModel.filteredJobs, requireActivity())
+            recyclerView.adapter = CardViewAdapter(viewModel.jobs, requireActivity())
         }
     }
 
