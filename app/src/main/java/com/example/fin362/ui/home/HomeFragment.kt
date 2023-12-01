@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
@@ -21,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.fin362.R
 import com.example.fin362.databinding.FragmentHomeBinding
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -32,10 +34,92 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.concurrent.ConcurrentHashMap
 
 class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentActivity: FragmentActivity) : RecyclerView.Adapter<ViewHolder>(){
     private val internalJobList = jobList
     private val internalParentActivity = parentActivity
+    private val jobBundle = Bundle()
+    // Code for getting logos copied from SavedJobsAdapter.kt
+    // TODO: This will need to be changed eventually
+    private var clearbitApiKey = ""
+    private val logoCache = ConcurrentHashMap<String, String?>()
+    private fun fetchCompanyLogo(companyDomain: String, callback: (String?) -> Unit) {
+        val apiUrl = "https://logo.clearbit.com/$companyDomain"
+
+        val client = OkHttpClient()
+
+        val request = Request.Builder()
+            .url(apiUrl)
+            .header("Authorization", "Bearer $clearbitApiKey")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Handle failure (e.g., network issues)
+                Handler(internalParentActivity.mainLooper).post {
+                    callback(null)
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                // Handle the response
+                if (response.isSuccessful) {
+                    // Get the URL of the company logo
+                    val logoUrl = response.request.url.toString()
+
+                    // Use Handler to post the result back to the main thread
+                    Handler(internalParentActivity.mainLooper).post {
+                        callback(logoUrl)
+                    }
+                } else {
+                    // Handle non-successful responses
+                    Handler(internalParentActivity.mainLooper).post {
+                        callback(null)
+                    }
+                }
+            }
+        })
+    }
+
+    private fun getLogos(currentJob: com.example.fin362.ui.events.Job, holder: RecyclerView.ViewHolder, position: Int) {
+        val logo = holder.itemView.findViewById<ImageView>(R.id.history_job_logo)
+        logo.tag = currentJob.companyName + position
+        val logoUrl = logoCache[currentJob.companyName]
+
+        CoroutineScope(Job() + Dispatchers.Default).launch {
+            if (logoUrl == "placeholder") {
+                logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
+                holder.itemView.tag = "placeholder"
+            } else if (logoUrl != null && logoUrl != "placeholder") {
+                // Load the company logo from the cache
+                Picasso.get().load(logoUrl).into(logo)
+                holder.itemView.tag = logoUrl
+            } else {
+                val searchDomain = "www." + currentJob.companyName + ".com"
+                // Fetch the company logo and store the URL in the cache
+                fetchCompanyLogo(searchDomain) { fetchedLogoUrl ->
+                    if (fetchedLogoUrl != null && logo.tag == currentJob.companyName + position) {
+                        // Load the company logo
+                        Picasso.get().load(fetchedLogoUrl).into(logo)
+                        // Cache the logo URL
+                        logoCache[currentJob.companyName] = fetchedLogoUrl
+
+                        holder.itemView.tag = fetchedLogoUrl
+                    } else if (fetchedLogoUrl == null && logo.tag == currentJob.companyName + position) {
+                        // Use the default placeholder drawable
+                        logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
+                        //prevent accidental overwrite for existing companyNames with logos
+                        if (!logoCache.containsKey(currentJob.companyName)) {
+                            logoCache[currentJob.companyName] = "placeholder"
+                        }
+
+                        holder.itemView.tag = "placeholder"
+                    }
+                }
+            }
+        }
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -47,8 +131,9 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val job = internalJobList[position]
 
+        getLogos(job, holder, position)
+
         holder.itemView.setOnClickListener{
-            val jobBundle = Bundle()
             jobBundle.putString("companyName", job.companyName)
             jobBundle.putString("jobTitle", job.positionTitle)
             jobBundle.putString("jobLocation", job.location)
@@ -56,6 +141,7 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
             jobBundle.putString("jobDate", job.dateSaved?.toDate().toString())
             jobBundle.putString("status", job.appStatus)
             jobBundle.putString("link", job.link)
+            jobBundle.putString("logoUrl", holder.itemView.tag.toString())
 
             val fragTransaction = internalParentActivity.supportFragmentManager.beginTransaction()
             fragTransaction.replace(R.id.history_container, HomeDetail(jobBundle))
@@ -103,8 +189,6 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
-    // TODO: This will need to be changed eventually
-    private var clearbitApiKey = ""
 
     // This property is only valid between onCreateView and
     // onDestroyView.
@@ -160,45 +244,6 @@ class HomeFragment : Fragment() {
             viewModel.filterType = "Rejected"
             listSetupFiltered(view)
         }
-    }
-
-    // Code copied from SavedJobsAdapter.kt
-    private fun fetchCompanyLogo(companyDomain: String, callback: (String?) -> Unit) {
-        val apiUrl = "https://logo.clearbit.com/$companyDomain"
-
-        val client = OkHttpClient()
-
-        val request = Request.Builder()
-            .url(apiUrl)
-            .header("Authorization", "Bearer $clearbitApiKey")
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                // Handle failure (e.g., network issues)
-                Handler(requireContext().mainLooper).post {
-                    callback(null)
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                // Handle the response
-                if (response.isSuccessful) {
-                    // Get the URL of the company logo
-                    val logoUrl = response.request.url.toString()
-
-                    // Use Handler to post the result back to the main thread
-                    Handler(requireContext().mainLooper).post {
-                        callback(logoUrl)
-                    }
-                } else {
-                    // Handle non-successful responses
-                    Handler(requireContext().mainLooper).post {
-                        callback(null)
-                    }
-                }
-            }
-        })
     }
 
     private fun listSetupFiltered(view: View){

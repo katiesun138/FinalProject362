@@ -22,7 +22,8 @@
                 android:layout_width="80dp"
                 android:layout_height="80dp"
                 android:src="@drawable/ic_company_placeholder_black_24dp"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"/>
             <androidx.cardview.widget.CardView
                 android:id="@+id/history_detail_company_name"
                 android:layout_width="match_parent"

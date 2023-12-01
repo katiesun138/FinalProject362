@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
@@ -14,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction
 import com.example.fin362.FirebaseDBManager
 import com.example.fin362.R
 import com.google.firebase.Timestamp
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -87,6 +89,13 @@ class HomeDetail(jobBundle: Bundle) : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home_detail, container, false)
+
+        val logo = view.findViewById<ImageView>(R.id.history_detail_logo)
+        val logoUrl = localBundle.getString("logoUrl")
+
+        if(logoUrl != "placeholder" && !logoUrl.isNullOrBlank()){
+            Picasso.get().load(logoUrl).into(logo)
+        }
 
         view.findViewById<EditText>(R.id.history_detail_company_name_text).
             setText(localBundle.getString("companyName"))
