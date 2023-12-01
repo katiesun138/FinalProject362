@@ -87,6 +87,14 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
         logo.tag = currentJob.companyName + position
         val logoUrl = logoCache[currentJob.companyName]
 
+        // We do a cute trick here with placing the URL into the holder's tag
+        // Trying to do it in other ways will result in timing issues, as the onClickListener is
+        // set up immediately, while we can't actually know the URL until this function resolves.
+        // Putting it in the tag lets us both set up the listener instantly while still having
+        // the logo actually work as expected.
+        //
+        // If the button is clicked instantly, before this function resolves, the logo on the
+        // detail page will just be blank, but that's fine.
         CoroutineScope(Job() + Dispatchers.Default).launch {
             if (logoUrl == "placeholder") {
                 logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
