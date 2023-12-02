@@ -2,17 +2,11 @@ package com.example.fin362.ui.events
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Handler
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -43,7 +37,7 @@ class SavedJobsAdapter(private val context: Context, private val onDeleteClickLi
     private var clearbitApiKey = "" //clearbit company logo api key
 
     //cache for logos so we don't have async fetching issues
-    private val logoCache = ConcurrentHashMap<String, String?>()
+    private var logoCache = ConcurrentHashMap<String, String?>()
 
     private var currentQuery: String = ""
 
@@ -62,8 +56,7 @@ class SavedJobsAdapter(private val context: Context, private val onDeleteClickLi
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentJob = itemList[position]
-        val searchDomain = "www." + currentJob.companyName + ".com"
-
+        val searchDomain = currentJob.companyName + ".com"
         holder.companyLogoImageView.tag = currentJob.companyName + position
 
         val logoUrl = logoCache[currentJob.companyName]
