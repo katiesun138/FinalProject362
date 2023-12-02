@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.fin362.R
 import com.example.fin362.databinding.FragmentHomeBinding
+import com.google.firebase.Timestamp
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +35,7 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 
 class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentActivity: FragmentActivity) : RecyclerView.Adapter<ViewHolder>(){
@@ -145,8 +147,13 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
             jobBundle.putString("companyName", job.companyName)
             jobBundle.putString("jobTitle", job.positionTitle)
             jobBundle.putString("jobLocation", job.location)
+            jobBundle.putString("jobType", job.jobType)
             jobBundle.putString("documentId", job.documentId)
-            jobBundle.putString("jobDate", job.dateSaved?.toDate().toString())
+            jobBundle.putString("savedDate", job.dateSaved?.toDate().toString())
+            jobBundle.putString("appliedDate", job.dateApplied?.toDate().toString())
+            jobBundle.putString("interviewDate", job.dateInterview?.toDate().toString())
+            jobBundle.putString("offerDate", job.dateOffer?.toDate().toString())
+            jobBundle.putString("rejectedDate", job.dateRejected?.toDate().toString())
             jobBundle.putString("status", job.appStatus)
             jobBundle.putString("link", job.link)
             jobBundle.putString("logoUrl", holder.itemView.tag.toString())
@@ -162,9 +169,32 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
         holder.itemView.findViewById<TextView>(R.id.history_job_title).text = job.positionTitle
         holder.itemView.findViewById<TextView>(R.id.history_job_location).text = job.location
 
-        val dateFormat = SimpleDateFormat("MMM d, YYYY")
-        val formattedDate = dateFormat.format(job.dateSaved!!.toDate()).toString()
-        holder.itemView.findViewById<TextView>(R.id.history_job_date).text = formattedDate
+        val dateView = holder.itemView.findViewById<TextView>(R.id.history_job_date)
+        var displayedDate: Timestamp? = Timestamp.now()
+        when (job.appStatus) {
+            "Applied" -> {
+                displayedDate = job.dateApplied
+            }
+            "Interviewing" -> {
+                displayedDate =  job.dateInterview
+            }
+            "Offer" -> {
+                displayedDate = job.dateOffer
+            }
+                "Rejected" -> {
+                    displayedDate = job.dateRejected
+                }
+            }
+
+        if (displayedDate != null) {
+            val outputFormat = SimpleDateFormat("MMM d, yyyy")
+            val date = Date(displayedDate.seconds * 1000 + displayedDate.nanoseconds / 1000000)
+            val displayDate = outputFormat.format(date)
+            dateView.text = displayDate
+        } else {
+            //Current status has no set date yet
+            dateView.text  = "N/A"
+        }
 
         val statusBadge = holder.itemView.findViewById<TextView>(R.id.history_job_status)
         statusBadge.background = when(job.appStatus){
@@ -273,7 +303,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun listSetup(view: View){
-        viewModel.db.getSavedJobsForUser {
+        viewModel.db.getApplicationJobsForUser {
             viewModel.jobs = it
 
             val recyclerView = view.findViewById<RecyclerView>(R.id.history_recycler_container)

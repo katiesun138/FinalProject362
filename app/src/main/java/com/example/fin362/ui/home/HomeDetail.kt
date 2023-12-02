@@ -2,6 +2,7 @@ package com.example.fin362.ui.home
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,9 +23,25 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 
 class HomeDetail(jobBundle: Bundle) : Fragment() {
     private val localBundle = jobBundle
+
+    val monthMap = mapOf(
+        "Jan." to 1,
+        "Feb." to 2,
+        "Mar." to 3,
+        "Apr." to 4,
+        "May" to 5,
+        "Jun." to 6,
+        "Jul." to 7,
+        "Aug." to 8,
+        "Sep." to 9,
+        "Oct." to 10,
+        "Nov." to 11,
+        "Dec." to 12
+    )
 
     fun saveChanges(view: View){
         val db = FirebaseDBManager()
@@ -35,32 +52,68 @@ class HomeDetail(jobBundle: Bundle) : Fragment() {
             val link = view.findViewById<EditText>(R.id.history_detail_link_text).text.toString()
             val location = view.findViewById<EditText>(R.id.history_detail_job_location_text).text.toString()
             val jobTitle = view.findViewById<EditText>(R.id.history_detail_job_title_text).text.toString()
+            val jobType = localBundle.getString("jobType")
 
             // An extremely clumsy way of creating a date object from a string
-            val dateApplied = Calendar.getInstance()
-            val splitDate = view.findViewById<TextView>(R.id.history_detail_job_date_text).text.toString().split("/")
-            dateApplied.set(splitDate[2].toInt(), splitDate[1].toInt(), splitDate[0].toInt())
+            val cal = Calendar.getInstance()
+            val splitDate = view.findViewById<TextView>(R.id.history_detail_job_date_text).text.toString()
 
-            val timestamp = Timestamp(dateApplied.time)
+            val regex = Regex("""(\w{3}\.) (\d+), (\d{4})""")
+            val matchResult = regex.find(splitDate)
+
+            if (matchResult != null) {
+                val (monthStr, dayStr, yearStr) = matchResult.destructured
+                val month = monthMap[monthStr]?.minus(1)
+                val day = dayStr.toInt()
+                val year = yearStr.toInt()
+
+                val resultArray = arrayOf(day, month!!, year)
+                cal.set(resultArray[2], resultArray[1], resultArray[0])
+            }
+
+            val updatedDate = Timestamp(cal.time)
+
+            val savedDate: Timestamp? = getTimestampFromBundle(localBundle, "savedDate")
+            var appliedDate: Timestamp? = getTimestampFromBundle(localBundle, "appliedDate")
+            var interviewDate: Timestamp? = getTimestampFromBundle(localBundle, "interviewDate")
+            var offerDate: Timestamp? = getTimestampFromBundle(localBundle, "offerDate")
+            var rejectedDate: Timestamp? = getTimestampFromBundle(localBundle, "rejectedDate")
+
+            //based on the current jobStatus set the user updated date for that jobStatus
+            when (jobStatus) {
+                "Applied" -> {
+                    appliedDate = updatedDate
+                }
+                "Interviewing" -> {
+                    interviewDate = updatedDate
+                }
+                "Offer" -> {
+                    offerDate = updatedDate
+                }
+                "Rejected" -> {
+                    rejectedDate = updatedDate
+                }
+            }
 
             db.updateJob(
                 localBundle.getString("documentId").toString(),
                 jobStatus,
                 companyName,
-                timestamp,
-                null,
-                null,
-                null,
-                null,
-                "",
+                savedDate,
+                appliedDate,
+                interviewDate,
+                offerDate,
+                rejectedDate,
+                jobType!!,
                 link,
                 location,
-                jobTitle
+                jobTitle,
+                false
             )
         }
     }
 
-    fun updateStatus(jobStatus: String, view: View){
+    private fun updateStatus(jobStatus: String, view: View){
         val statusBadge = view.findViewById<TextView>(R.id.history_detail_job_status_text)
 
         if(jobStatus == ""){
@@ -80,6 +133,48 @@ class HomeDetail(jobBundle: Bundle) : Fragment() {
                 ContextCompat.getDrawable(requireActivity(), R.drawable.history_status_rejected)
             else ->
                 ContextCompat.getDrawable(requireActivity(), R.drawable.history_status_unknown)
+        }
+        updateDisplayedDate(jobStatus, view)
+    }
+
+
+    private fun getTimestampFromBundle(bundle: Bundle?, key: String): Timestamp? {
+        val dateFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy")
+        return bundle?.getString(key)?.let {
+            try {
+                Timestamp(Date(dateFormat.parse(it).time))
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
+
+    private fun updateDisplayedDate(jobStatus: String?, view: View){
+        val dateView = view.findViewById<TextView>(R.id.history_detail_job_date_text)
+        var displayedDate: Timestamp? = Timestamp.now()
+        when (jobStatus) {
+            "Applied" -> {
+                displayedDate = getTimestampFromBundle(localBundle, "appliedDate")
+            }
+            "Interviewing" -> {
+                displayedDate =  getTimestampFromBundle(localBundle, "interviewDate")
+            }
+            "Offer" -> {
+                displayedDate =  getTimestampFromBundle(localBundle, "offerDate")
+            }
+            "Rejected" -> {
+                displayedDate =  getTimestampFromBundle(localBundle, "rejectedDate")
+            }
+        }
+
+        if (displayedDate != null) {
+            val outputFormat = SimpleDateFormat("MMM d, yyyy")
+            val date = Date(displayedDate.seconds * 1000 + displayedDate.nanoseconds / 1000000)
+            val displayDate = outputFormat.format(date)
+            dateView.text = displayDate
+        } else {
+            //Current status has no set date yet
+            dateView.text  = "N/A"
         }
     }
 
@@ -106,17 +201,21 @@ class HomeDetail(jobBundle: Bundle) : Fragment() {
         view.findViewById<EditText>(R.id.history_detail_link_text).
             setText(localBundle.getString("link"))
 
-        val rawDate = localBundle.getString("jobDate")
-        if(rawDate != null) {
-            val currentFormat = SimpleDateFormat("EEE LLL dd HH:mm:ss zzz yyyy")
-            val targetFormat = SimpleDateFormat("MMM d, yyyy")
-            val date = currentFormat.parse(rawDate)
-
-            view.findViewById<TextView>(R.id.history_detail_job_date_text).text =
-                targetFormat.format(date)
-        }
-
         val jobStatus = localBundle.getString("status")
+        updateDisplayedDate(jobStatus, view)
+
+
+//        val rawDate = localBundle.getString("savedDate")
+//        if(rawDate != null) {
+//            val currentFormat = SimpleDateFormat("EEE LLL dd HH:mm:ss zzz yyyy")
+//            val targetFormat = SimpleDateFormat("MMM d, yyyy")
+//            val date = currentFormat.parse(rawDate)
+//
+//            view.findViewById<TextView>(R.id.history_detail_job_date_text).text =
+//                targetFormat.format(date)
+//        }
+
+
         if(jobStatus != null){
             updateStatus(jobStatus, view)
         } else {
@@ -149,7 +248,7 @@ class HomeDetail(jobBundle: Bundle) : Fragment() {
                     // January was month 0, December month 11. This is a workaround.
                     val adjustedMonth = month + 1
                     view.findViewById<TextView>(R.id.history_detail_job_date_text).text =
-                        "$day/$adjustedMonth/$year"
+                        "${monthMap.entries.find { it.value == adjustedMonth }?.key} $day, $year"
                 },
                 currentYear, currentMonth, currentDay).show()
         }

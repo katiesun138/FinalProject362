@@ -1,9 +1,13 @@
 package com.example.fin362.ui.events
 
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -134,6 +138,7 @@ class EventsFragment : Fragment() {
                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(jobLink))
                             context?.startActivity(intent)
                             eventsRecyclerView.adapter?.notifyItemChanged(position)
+                            showReturnToAppDialog(savedJobsAdapter, jobEntry, position)
                         } else {
                             // Reset the item's position to simulate bounce back
                             eventsRecyclerView.adapter?.notifyItemChanged(position)
@@ -298,6 +303,46 @@ class EventsFragment : Fragment() {
         super.onResume()
         // Clear the search query when the fragment is resumed
         searchBar.setQuery("", false)
+    }
+
+    private fun showReturnToAppDialog(savedJobsAdapter: SavedJobsAdapter, jobEntry: Job?, position: Int) {
+        Handler(Looper.getMainLooper()).postDelayed({
+            val alertDialogBuilder = AlertDialog.Builder(requireContext())
+            alertDialogBuilder.setMessage("Did you apply?")
+            alertDialogBuilder.setPositiveButton("Yes") { _, _ ->
+                // Handle the OK button click if needed
+                Log.d("TEST", jobEntry.toString() + position)
+
+                lifecycleScope.launch(Dispatchers.Main) {
+                    withContext(Dispatchers.IO) {
+                        // Use GlobalScope for the background task
+                        val deleteResult = GlobalScope.async {
+                            if (jobEntry != null) {
+                                firebaseDBManager.updateJob(jobEntry.documentId, "Applied", jobEntry.companyName, jobEntry.dateSaved, Timestamp.now(), jobEntry.dateInterview, jobEntry.dateOffer,
+                                    jobEntry.dateRejected, jobEntry.jobType, jobEntry.link, jobEntry.location, jobEntry.positionTitle, false)
+                            }
+                        }.await()
+
+                        if (deleteResult != null){
+                            firebaseDBManager.getSavedJobsForUser { jobList ->
+                                savedJobsAdapter.updateData(jobList)
+                                // Update adapter data on the main thread
+                                savedJobsAdapter.originalList.removeAll { it.documentId == jobEntry?.documentId }
+                                savedJobsAdapter.updateData(jobList)
+                                savedJobsAdapter.filter(searchBar.query.toString())
+                            }
+                        }
+                    }}
+
+
+            }
+            alertDialogBuilder.setNegativeButton("No") {
+                    _,_ ->
+            }
+
+            val alertDialog = alertDialogBuilder.create()
+            alertDialog.show()
+        }, 2000L)
     }
 
 }

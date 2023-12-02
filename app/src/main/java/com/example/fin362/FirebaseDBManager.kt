@@ -60,7 +60,7 @@ class FirebaseDBManager {
 
     fun updateJob(documentId: String, appStatus: String?, companyName: String, dateSaved: Timestamp?, dateApplied: Timestamp?, dateInterview: Timestamp?,
         dateOffer: Timestamp?, dateRejected: Timestamp?, jobType: String, link: String,
-        location: String, positionTitle: String) {
+        location: String, positionTitle: String, isSaved: Boolean?) {
         currentUser?.let { user ->
             val usersCollection: DocumentReference = firestore.collection("users").document(user.uid)
             val jobDocument: DocumentReference = usersCollection.collection("jobs").document(documentId)
@@ -73,7 +73,7 @@ class FirebaseDBManager {
                 "date_offer" to dateOffer,
                 "date_rejected" to dateRejected,
                 "date_saved" to dateSaved,
-                "is_saved" to true,
+                "is_saved" to isSaved,
                 "job_type" to jobType,
                 "link" to link,
                 "location" to location,
@@ -191,6 +191,42 @@ class FirebaseDBManager {
         }
     }
 
+    fun getApplicationJobsForUser(callback: (List<Job>) -> Unit) {
+        currentUser?.let { user ->
+            val usersCollection: CollectionReference = firestore.collection("users").document(user.uid).collection("jobs")
+            val query: Query = usersCollection.whereEqualTo("is_saved", false).orderBy("date_applied", Query.Direction.DESCENDING)
+
+            query.get()
+                .addOnSuccessListener { documents ->
+                    val jobList = ArrayList<Job>()
+                    for (document in documents) {
+                        val documentId = document.id
+                        val companyName = document.getString("company_name") ?: ""
+                        val positionTitle = document.getString("position_title") ?: ""
+                        val location = document.getString("location") ?: ""
+                        val dateSaved = document.getTimestamp("date_saved") ?: null
+                        val link = document.getString("link") ?: ""
+                        val jobType = document.getString("job_type") ?: ""
+                        val appStatus = document.getString("app_status") ?: null
+                        val dateApplied = document.getTimestamp("date_applied") ?: null
+                        val dateInterview = document.getTimestamp("date_interview") ?: null
+                        val dateOffer = document.getTimestamp("date_offer") ?: null
+                        val dateRejected = document.getTimestamp("date_rejected") ?: null
+                        val isSaved = document.getBoolean("is_saved") ?: null
+
+                        val savedJob = Job(documentId, companyName.capitalize(), positionTitle.capitalize(),
+                            location.capitalize(), dateSaved, link, jobType, appStatus, dateApplied,
+                            dateInterview, dateOffer, dateRejected, isSaved)
+                        jobList.add(savedJob)
+                    }
+
+                    callback(jobList)
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("DB", "Error getting job documents", exception)
+                }
+        }
+    }
     fun saveProfile( name: String,email:String) {
         currentUser?.let { user ->
             val usersCollection: DocumentReference = firestore.collection("users").document(user.uid)

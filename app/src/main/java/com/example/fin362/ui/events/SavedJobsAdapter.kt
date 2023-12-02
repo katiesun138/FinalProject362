@@ -243,7 +243,8 @@ class SavedJobsAdapter(private val context: Context, private val onDeleteClickLi
                         updatedJobType,
                         updatedLink,
                         updatedLocation,
-                        updatedPositionTitle
+                        updatedPositionTitle,
+                        true
                     )
                     // Refresh the data in the adapter
                     firebaseDBManager.getSavedJobsForUser { jobList ->
