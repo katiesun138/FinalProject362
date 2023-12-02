@@ -9,8 +9,6 @@ import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -24,7 +22,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -245,30 +242,6 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var viewModel: HomeViewModel
 
-    private fun spinnerSetup(view: View) {
-        val layoutSpinner = view.findViewById<Spinner>(R.id.history_view_spinner)
-        val adapter = ArrayAdapter(requireContext(),
-            android.R.layout.simple_spinner_dropdown_item,
-            resources.getStringArray(R.array.history_layout_types))
-
-        layoutSpinner.adapter = adapter
-
-        layoutSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Intentionally does nothing
-            }
-
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                when(position){
-                    0 -> viewModel.compactView = false
-                    1 -> viewModel.compactView = true
-                    else -> viewModel.compactView = false // Shouldn't be possible
-                }
-                //TODO: Make this actually change anything on the display
-            }
-        }
-    }
-
     private fun filterSetup(view: View){
         val buttons = view.findViewById<LinearLayout>(R.id.history_filter_buttons)
 
@@ -335,7 +308,6 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val view: View = binding.root
 
-        spinnerSetup(view)
         filterSetup(view)
 
         view.findViewById<Button>(R.id.history_graph_goto).setOnClickListener{

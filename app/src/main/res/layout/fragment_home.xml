@@ -13,24 +13,15 @@
     android:layout_marginTop="?attr/actionBarSize"
     android:background="?android:windowBackground">
 
-    <Spinner
-        android:id="@+id/history_view_spinner"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_centerHorizontal="true"
-        style="@style/Widget.AppCompat.Spinner.Underlined"
-        />
-
     <LinearLayout
         android:id="@+id/history_filter_scroll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/history_view_spinner">
+        android:layout_alignParentTop="true">
         <HorizontalScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/history_view_spinner">
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:id="@+id/history_filter_buttons"
