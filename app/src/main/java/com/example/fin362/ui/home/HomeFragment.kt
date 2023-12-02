@@ -104,7 +104,7 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
                 Picasso.get().load(logoUrl).into(logo)
                 holder.itemView.tag = logoUrl
             } else {
-                val searchDomain = "www." + currentJob.companyName + ".com"
+                val searchDomain = currentJob.companyName + ".com"
                 // Fetch the company logo and store the URL in the cache
                 fetchCompanyLogo(searchDomain) { fetchedLogoUrl ->
                     if (fetchedLogoUrl != null && logo.tag == currentJob.companyName + position) {
