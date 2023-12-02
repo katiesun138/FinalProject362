@@ -30,19 +30,11 @@
                 android:textSize="20sp"
                 android:layout_weight="1"
                 />
-            <Button
-                android:id="@+id/event_add_button"
-                android:layout_width="wrap_content"
-                android:layout_height="38dp"
-                android:background="@color/purple_500"
-                android:text="Add"
-                android:textColor="@color/white"/>
         </LinearLayout>
 
         <include
             android:id="@+id/search_bar"
             layout="@layout/search_bar" />
-
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/event_list"
@@ -63,5 +55,20 @@
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="0dp"
             android:visibility="invisible"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/event_add_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:layout_above="@+id/navigation_bar_placeholder"
+            android:src="@drawable/ic_add_white_24dp"
+            app:backgroundTint="@color/purple_500"
+            app:fabSize="auto"
+            android:clickable="true"
+            android:focusable="true" />
     </RelativeLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

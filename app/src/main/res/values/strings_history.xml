@@ -41,4 +41,11 @@
     <string name="history_status_dialog_offered">Offer</string>
     <string name="history_status_dialog_cancel">Cancel</string>
 
+    <string-array name="status_options">
+        <item>Applied</item>
+        <item>Interviewing</item>
+        <item>Rejected</item>
+        <item>Offer</item>
+    </string-array>
+
 </resources>

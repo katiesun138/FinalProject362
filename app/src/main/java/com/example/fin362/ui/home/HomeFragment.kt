@@ -1,5 +1,6 @@
 package com.example.fin362.ui.home
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
@@ -8,8 +9,10 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RadioGroup
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -22,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.fin362.R
 import com.example.fin362.databinding.FragmentHomeBinding
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.Timestamp
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
@@ -35,6 +39,7 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 
@@ -97,35 +102,33 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
         //
         // If the button is clicked instantly, before this function resolves, the logo on the
         // detail page will just be blank, but that's fine.
-        CoroutineScope(Job() + Dispatchers.Default).launch {
-            if (logoUrl == "placeholder") {
-                logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
-                holder.itemView.tag = "placeholder"
-            } else if (logoUrl != null && logoUrl != "placeholder") {
-                // Load the company logo from the cache
-                Picasso.get().load(logoUrl).into(logo)
-                holder.itemView.tag = logoUrl
-            } else {
-                val searchDomain = currentJob.companyName + ".com"
-                // Fetch the company logo and store the URL in the cache
-                fetchCompanyLogo(searchDomain) { fetchedLogoUrl ->
-                    if (fetchedLogoUrl != null && logo.tag == currentJob.companyName + position) {
-                        // Load the company logo
-                        Picasso.get().load(fetchedLogoUrl).into(logo)
-                        // Cache the logo URL
-                        logoCache[currentJob.companyName] = fetchedLogoUrl
+        if (logoUrl == "placeholder") {
+            logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
+            holder.itemView.tag = "placeholder"
+        } else if (logoUrl != null && logoUrl != "placeholder") {
+            // Load the company logo from the cache
+            Picasso.get().load(logoUrl).into(logo)
+            holder.itemView.tag = logoUrl
+        } else {
+            val searchDomain = currentJob.companyName + ".com"
+            // Fetch the company logo and store the URL in the cache
+            fetchCompanyLogo(searchDomain) { fetchedLogoUrl ->
+                if (fetchedLogoUrl != null && logo.tag == currentJob.companyName + position) {
+                    // Load the company logo
+                    Picasso.get().load(fetchedLogoUrl).into(logo)
+                    // Cache the logo URL
+                    logoCache[currentJob.companyName] = fetchedLogoUrl
 
-                        holder.itemView.tag = fetchedLogoUrl
-                    } else if (fetchedLogoUrl == null && logo.tag == currentJob.companyName + position) {
-                        // Use the default placeholder drawable
-                        logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
-                        //prevent accidental overwrite for existing companyNames with logos
-                        if (!logoCache.containsKey(currentJob.companyName)) {
-                            logoCache[currentJob.companyName] = "placeholder"
-                        }
-
-                        holder.itemView.tag = "placeholder"
+                    holder.itemView.tag = fetchedLogoUrl
+                } else if (fetchedLogoUrl == null && logo.tag == currentJob.companyName + position) {
+                    // Use the default placeholder drawable
+                    logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
+                    //prevent accidental overwrite for existing companyNames with logos
+                    if (!logoCache.containsKey(currentJob.companyName)) {
+                        logoCache[currentJob.companyName] = "placeholder"
                     }
+
+                    holder.itemView.tag = "placeholder"
                 }
             }
         }
@@ -331,6 +334,81 @@ class HomeFragment : Fragment() {
             fragTransaction.replace(R.id.history_container, HomeGraphView(viewModel.jobs))
             fragTransaction.addToBackStack(null)
             fragTransaction.commit()
+        }
+
+        val addButton: FloatingActionButton = view.findViewById(R.id.history_add_button)
+        addButton.setOnClickListener {
+            val dialogBuilder = AlertDialog.Builder(requireContext())
+            val inflater = layoutInflater
+            val dialogView = inflater.inflate(R.layout.application_job_input_form, null)
+            dialogBuilder.setView(dialogView)
+
+            // Reference to EditTexts and error message TextView in the dialog
+            val companyNameEditText = dialogView.findViewById<EditText>(R.id.company_name_edit_text)
+            val positionTitleEditText = dialogView.findViewById<EditText>(R.id.position_title_edit_text)
+            val jobTypeEditText = dialogView.findViewById<EditText>(R.id.job_type_edit_text)
+            val jobStatusSpinner = dialogView.findViewById<Spinner>(R.id.job_status_spinner)
+            val linkEditText = dialogView.findViewById<EditText>(R.id.link_edit_text)
+            val locationEditText = dialogView.findViewById<EditText>(R.id.location_edit_text)
+            val errorMessageTextView = dialogView.findViewById<TextView>(R.id.error_message_text_view)
+
+            dialogBuilder.setTitle("Enter Job Information")
+            dialogBuilder.setPositiveButton("Save", null) // Set to null initially to override the automatic dismiss
+
+            dialogBuilder.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+            val alertDialog = dialogBuilder.create()
+
+            // Override the positive button click to perform custom logic
+            alertDialog.setOnShowListener {
+                val saveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                saveButton.setOnClickListener {
+                    val companyName = companyNameEditText.text.toString()
+                    val positionTitle = positionTitleEditText.text.toString()
+                    val jobType = jobTypeEditText.text.toString()
+                    val jobStatus = jobStatusSpinner.selectedItem.toString()
+                    val link = linkEditText.text.toString()
+                    val location = locationEditText.text.toString()
+
+                    // Validate input fields
+                    if (companyName.isBlank() || positionTitle.isBlank() || jobType.isBlank() || link.isBlank() || location.isBlank()) {
+                        // Show an error message inside the dialog
+                        errorMessageTextView.visibility = View.VISIBLE
+                        errorMessageTextView.text = "All fields are required"
+                    } else {
+                        // Call saveJob function with user input
+                        var appliedDate: Timestamp? = null
+                        var interviewDate: Timestamp? = null
+                        var offerDate: Timestamp? = null
+                        var rejectedDate: Timestamp? = null
+                        when (jobStatus) {
+                            "Applied" -> {
+                                appliedDate = Timestamp.now()
+                            }
+                            "Interviewing" -> {
+                                interviewDate =  Timestamp.now()
+                            }
+                            "Offer" -> {
+                                offerDate = Timestamp.now()
+                            }
+                            "Rejected" -> {
+                                rejectedDate = Timestamp.now()
+                            }
+                        }
+
+                        viewModel.db.saveJob(
+                            jobStatus, companyName, null, appliedDate,
+                            interviewDate, offerDate, rejectedDate, jobType, link,
+                            location, positionTitle, false
+                        )
+                        listSetup(view)
+                        alertDialog.dismiss()
+                    }
+                }
+            }
+            alertDialog.show()
         }
 
         return view

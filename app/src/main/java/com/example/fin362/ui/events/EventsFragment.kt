@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.fin362.FirebaseDBManager
 import com.example.fin362.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
@@ -173,7 +174,7 @@ class EventsFragment : Fragment() {
             }
         })
 
-        val addButton: Button = eventView.findViewById(R.id.event_add_button)
+        val addButton: FloatingActionButton = eventView.findViewById(R.id.event_add_button)
         addButton.setOnClickListener {
             val dialogBuilder = AlertDialog.Builder(requireContext())
             val inflater = layoutInflater
@@ -221,7 +222,7 @@ class EventsFragment : Fragment() {
                         firebaseDBManager.saveJob(
                             null, companyName, dateSavedTimestamp,null,
                             null, null, null, jobType, link,
-                            location, positionTitle
+                            location, positionTitle, true
                         )
 
                         firebaseDBManager.getSavedJobsForUser { jobList ->
@@ -286,7 +287,8 @@ class EventsFragment : Fragment() {
                     deletedItem.jobType,
                     deletedItem.link,
                     deletedItem.location,
-                    deletedItem.positionTitle
+                    deletedItem.positionTitle,
+                    true
                 )
 
                 firebaseDBManager.getSavedJobsForUser { jobList ->
