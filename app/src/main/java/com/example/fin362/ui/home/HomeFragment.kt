@@ -1,8 +1,11 @@
 package com.example.fin362.ui.home
 
 import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,26 +15,33 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.RadioGroup
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.fin362.R
 import com.example.fin362.databinding.FragmentHomeBinding
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.Timestamp
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -39,7 +49,6 @@ import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.concurrent.ConcurrentHashMap
 
@@ -307,7 +316,7 @@ class HomeFragment : Fragment() {
 
     private fun listSetup(view: View){
         viewModel.db.getApplicationJobsForUser {
-            viewModel.jobs = it
+            viewModel.jobs = it.toMutableList()
 
             val recyclerView = view.findViewById<RecyclerView>(R.id.history_recycler_container)
 
@@ -411,9 +420,95 @@ class HomeFragment : Fragment() {
             alertDialog.show()
         }
 
+        val historyRecyclerView: RecyclerView = view.findViewById(R.id.history_recycler_container)
+        historyRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        val cardViewAdapter = CardViewAdapter(viewModel.jobs, requireActivity())
+
+        val itemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: ViewHolder,
+                target: ViewHolder
+            ): Boolean {
+                // Not used for swipe-to-delete
+                return false
+            }
+
+            override fun onSwiped(viewHolder: ViewHolder, direction: Int) {
+                val position = viewHolder.adapterPosition
+                val jobEntry = viewModel.jobs[position]
+
+                when (direction) {
+                    ItemTouchHelper.LEFT -> {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            withContext(Dispatchers.IO) {
+                                // Use GlobalScope for the background task
+                                val deleteResult = GlobalScope.async {
+                                    viewModel.db.deleteJobById(jobEntry?.documentId)
+                                }.await()
+                                val removedItem = viewModel.jobs.removeAt(position)
+                                if (deleteResult) {
+                                    listSetup(view)
+                                    showUndoSnackbar(jobEntry, position, view, cardViewAdapter, removedItem)
+                                }
+                            }
+                        }
+                    }
+                    ItemTouchHelper.RIGHT -> {
+                        val jobLink = viewModel.jobs[position]?.link
+                        if (!jobLink.isNullOrBlank() && Patterns.WEB_URL.matcher(jobLink).matches()) {
+                            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(jobLink))
+                            context?.startActivity(intent)
+                            historyRecyclerView.adapter?.notifyItemChanged(position)
+                        } else {
+                            // Reset the item's position to simulate bounce back
+                            historyRecyclerView.adapter?.notifyItemChanged(position)
+                            Toast.makeText(context, "No link added for this job", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            }
+        })
+
+        itemTouchHelper.attachToRecyclerView(historyRecyclerView)
+
         return view
     }
 
+    fun showUndoSnackbar(deletedItem: com.example.fin362.ui.events.Job?, position: Int, view: View, savedJobsAdapter: CardViewAdapter, removedItem: com.example.fin362.ui.events.Job) {
+        deletedItem?.let {
+            val snackbar = Snackbar.make(
+                view,
+                "Job deleted",
+                Snackbar.LENGTH_LONG
+            )
+            snackbar.setAction("Undo") {
+                // Handle the "Undo" action
+                viewModel.db.saveJob(
+                    deletedItem.appStatus,
+                    deletedItem.companyName,
+                    deletedItem.dateSaved,
+                    deletedItem.dateApplied,
+                    deletedItem.dateInterview,
+                    deletedItem.dateOffer,
+                    deletedItem.dateRejected,
+                    deletedItem.jobType,
+                    deletedItem.link,
+                    deletedItem.location,
+                    deletedItem.positionTitle,
+                    false
+                )
+                viewModel.jobs.add(position, removedItem)
+                listSetup(view)
+
+            }
+            snackbar.show()
+        }
+    }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 

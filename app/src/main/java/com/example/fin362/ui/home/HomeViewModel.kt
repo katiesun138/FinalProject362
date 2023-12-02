@@ -7,7 +7,7 @@ import com.example.fin362.ui.events.Job
 open class HomeViewModel : ViewModel() {
     var compactView: Boolean = false
     var db = FirebaseDBManager()
-    var jobs: List<Job> = listOf()
+    var jobs:  MutableList<Job> = mutableListOf()
     var filteredJobs: List<Job> = listOf()
     var filterType: String = ""
 }

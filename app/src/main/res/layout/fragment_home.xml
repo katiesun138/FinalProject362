@@ -111,7 +111,11 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical"
                     tools:itemCount="5"
-                    tools:listitem="@layout/home_recycled_cards"/>
+                    tools:listitem="@layout/home_recycled_cards"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:divider="@android:color/transparent"
+                    android:dividerHeight="12dp"
+                    />
                 <Button
                     android:id="@+id/history_graph_goto"
                     android:layout_width="match_parent"
