@@ -109,7 +109,7 @@ class HomeDetail(jobBundle: Bundle) : Fragment() {
         val rawDate = localBundle.getString("jobDate")
         if(rawDate != null) {
             val currentFormat = SimpleDateFormat("EEE LLL dd HH:mm:ss zzz yyyy")
-            val targetFormat = SimpleDateFormat("dd/MM/yy")
+            val targetFormat = SimpleDateFormat("MMM d, yyyy")
             val date = currentFormat.parse(rawDate)
 
             view.findViewById<TextView>(R.id.history_detail_job_date_text).text =

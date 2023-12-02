@@ -162,7 +162,7 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
         holder.itemView.findViewById<TextView>(R.id.history_job_title).text = job.positionTitle
         holder.itemView.findViewById<TextView>(R.id.history_job_location).text = job.location
 
-        val dateFormat = SimpleDateFormat("dd/LL/yy")
+        val dateFormat = SimpleDateFormat("MMM d, YYYY")
         val formattedDate = dateFormat.format(job.dateSaved!!.toDate()).toString()
         holder.itemView.findViewById<TextView>(R.id.history_job_date).text = formattedDate
 
