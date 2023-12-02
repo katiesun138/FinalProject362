@@ -29,7 +29,6 @@ class HomeGraphView(jobList: List<Job>) : Fragment() {
 
     private fun createSpinner(view: View) {
         val graphTypeSpinner = view.findViewById<Spinner>(R.id.history_graph_mode_spinner)
-
         ArrayAdapter.createFromResource(
             requireContext(),
             R.array.history_graph_types,
@@ -63,7 +62,7 @@ class HomeGraphView(jobList: List<Job>) : Fragment() {
         for (job in internalJobList) {
             when (job.appStatus) {
                 "Applied" -> entryCounter[0]++
-                "Interviewed" -> entryCounter[1]++
+                "Interviewing" -> entryCounter[1]++
                 "Rejected" -> entryCounter[2]++
                 "Offer" -> entryCounter[3]++
                 else -> entryCounter[4]++
@@ -103,7 +102,7 @@ class HomeGraphView(jobList: List<Job>) : Fragment() {
         for(job in internalJobList){
             when(job.appStatus){
                 "Applied" -> entryCounter[0]++
-                "Interviewed" -> entryCounter[1]++
+                "Interviewing" -> entryCounter[1]++
                 "Rejected" -> entryCounter[2]++
                 "Offer" -> entryCounter[3]++
                 else -> entryCounter[4]++
@@ -111,7 +110,7 @@ class HomeGraphView(jobList: List<Job>) : Fragment() {
         }
 
         if(entryCounter[0] > 0) entries.add(PieEntry(entryCounter[0].toFloat(), "Applied"))
-        if(entryCounter[1] > 0) entries.add(PieEntry(entryCounter[1].toFloat(), "Interviewed"))
+        if(entryCounter[1] > 0) entries.add(PieEntry(entryCounter[1].toFloat(), "Interviewing"))
         if(entryCounter[2] > 0) entries.add(PieEntry(entryCounter[2].toFloat(), "Rejected"))
         if(entryCounter[3] > 0) entries.add(PieEntry(entryCounter[3].toFloat(), "Offer"))
         if(entryCounter[4] > 0) entries.add(PieEntry(entryCounter[4].toFloat(), "Unknown"))
@@ -151,7 +150,6 @@ class HomeGraphView(jobList: List<Job>) : Fragment() {
         view.findViewById<Button>(R.id.history_graph_mode_button).setOnClickListener{
             val chartFrame = view.findViewById<FrameLayout>(R.id.history_graph_chart) as ViewGroup
             chartFrame.removeView(chartFrame.getChildAt(0))
-
             when(viewModel.graphType){
                 0 -> createPieChart(view)
                 1 -> createBarChart(view)
