@@ -45,5 +45,21 @@ Katherine Sun, ksa138@sfu.ca
     * Figma prototype created
     * Project template pushed onto GitHub
     * Contributors Github information added
+ 
+##The team effort breakdown:
+* Kevin
+* Alice
+* Yigao
+* Katherine
+
+## The app APK (hyperlinked in).
+* Link:
+  
+## The MVVM (optional) and threaded design diagrams in a single slide presentation file
+
+## The presentation video (hyperlinked in)
+
+## A ZIP of the final project presented on demo day. Make sure this code works because we will grade it and test it. Please include any special instructions in a README
+
 
 
