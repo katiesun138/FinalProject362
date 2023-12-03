@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="job_types">
+        <item>No Preference</item>
+        <item>Entry Level</item>
+        <item>Senior Level</item>
+        <item>Mid Level</item>
+        <item>Management</item>
+        <item>Internship</item>
+    </string-array>
+
+    <string-array name="locations">
+        <item>No Preference</item>
+        <item>Austin, TX</item>
+        <item>Miami, FL</item>
+        <item>New York, NY</item>
+        <item>San Francisco, CA</item>
+        <item>Seattle, WA</item>
+        <item>Ottawa, Canada</item>
+        <item>Toronto, Canada</item>
+        <item>Vancouver, Canada</item>
+    </string-array>
+
+    <string-array name="categories">
+        <item>No Preference</item>
+        <item>Accounting and Finance</item>
+        <item>Business Operations</item>
+        <item>Computer and IT</item>
+        <item>Data and Analytics</item>
+        <item>Data Science</item>
+        <item>Design and UX</item>
+        <item>HR</item>
+        <item>Management</item>
+        <item>Marketing</item>
+        <item>Product Management</item>
+        <item>Project Management</item>
+        <item>Science and Engineering</item>
+        <item>Software Engineer</item>
+
+    </string-array>
+</resources>

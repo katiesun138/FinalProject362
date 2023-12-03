@@ -15,120 +15,43 @@
             android:textAlignment="center"
             android:orientation="vertical">
 
-
+            <!-- Job Type Filter -->
             <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Filters"
-                android:paddingBottom="20dp"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Select Salary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <SeekBar
-                android:id="@+id/salarySlider"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="100000"
-                android:progress="50000" />
-
-            <!-- Location Search -->
-            <TextView
-                android:id="@+id/salaryValue"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Salary: $50,000"
-                android:textSize="16sp" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Location Search"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp" />
-
-            <EditText
-                android:id="@+id/locationSearch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter location"
-                android:inputType="text" />
-
-            <!-- Job Type Selector -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Job Type"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginTop="16dp" />
-
-            <!-- Part-time -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewPartTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                app:cardBackgroundColor="@color/cardview_selector"
-                android:padding="16dp"
-                android:layout_marginTop="8dp">
-                <ToggleButton
-                    android:id="@+id/toggleButtonPartTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Part-time"
-                    android:background="@null"
-                android:textOff="Part-time"
-                android:textOn="Part-time"/>
-            </androidx.cardview.widget.CardView>
+                android:text="Job Type:" />
 
-            <!-- Full-time -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewFullTime"
+            <Spinner
+                android:id="@+id/spinnerJobType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:entries="@array/job_types" />
+
+            <!-- Location Filter -->
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                app:cardBackgroundColor="@color/cardview_selector"
-                android:padding="16dp"
-                android:layout_marginTop="8dp">
-                <ToggleButton
-                    android:id="@+id/toggleButtonFullTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Full-time"
-                    android:background="@null"
-                android:textOff="Full-time"
-                android:textOn="Full-time"/>
-            </androidx.cardview.widget.CardView>
+                android:text="Location:" />
 
-            <!-- Intern -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardViewIntern"
+            <Spinner
+                android:id="@+id/spinnerLocation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:dropDownHeight="200px"
+                android:entries="@array/locations" />
+
+            <!-- Category Filter -->
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                app:cardBackgroundColor="@color/cardview_selector"
-                android:padding="16dp"
-                android:layout_marginTop="8dp">
+                android:text="Category:" />
 
-
-            <ToggleButton
-                android:id="@+id/toggleButtonIntern"
-                android:layout_width="wrap_content"
+            <Spinner
+                android:id="@+id/spinnerCategory"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@null"
-                android:text="Intern"
-                android:textOff="Intern"
-                android:textOn="Intern" />
-            </androidx.cardview.widget.CardView>
-
+                android:dropDownHeight="200px"
+                android:entries="@array/categories" />
 
 
         </LinearLayout>
@@ -142,7 +65,7 @@
                 android:id="@+id/doneButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Done"
+                android:text="Apply"
                 android:layout_alignParentEnd="true"
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="16dp"/>

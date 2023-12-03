@@ -2,10 +2,12 @@ package com.example.fin362.ui.dashboard
 
 import android.content.Context
 import android.content.Intent
+import android.media.Image
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,8 +16,11 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.coroutines.withContext
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.PopupMenu
+import android.widget.SearchView
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -25,20 +30,58 @@ import com.example.fin362.R
 import com.example.fin362.databinding.FragmentDashboardBinding
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.Call
+import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.IOException
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.withContext as withContext1
 
-class DashboardFragment : Fragment() {
+class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
     private var _binding: FragmentDashboardBinding? = null
+    private var clearbitApiKey = ""
+    private val logoCache = ConcurrentHashMap<String, String?>()
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override suspend fun onFiltersApplied(jobType: String, location: String, category: String) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+//
+        Log.d("katie onfiltersent back", jobType)
+            var jobTypeReplace = replaceSpaceWithPercent(jobType)
+            var locationReplace = replaceCommaWithExtraPercent(replaceSpaceWithPercent(location))
+            var categoryReplace = replaceSpaceWithPercent(category)
+
+            var sendJobType = "level=$jobTypeReplace"
+            var sendLocation = "location=$locationReplace"
+            var sendCategory = "category=$categoryReplace"
+
+        jobSearchWithQuery(sendJobType, sendLocation, sendCategory)
+        }
+    }
+
+    fun replaceSpaceWithPercent(input:String):String{
+        return input.replace(" ", "%20")
+    }
+
+    fun replaceCommaWithExtraPercent(input:String):String{
+        return input.replace(",", "%2C")
+    }
 
     data class ApiResponse(
         val page: Int,
@@ -100,13 +143,19 @@ class DashboardFragment : Fragment() {
 
     private val binding get() = _binding!!
 
+    override fun onStart() {
+        super.onStart()
+    }
 
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+
         val dashboardViewModel =
             ViewModelProvider(this).get(DashboardViewModel::class.java)
 
@@ -121,10 +170,45 @@ class DashboardFragment : Fragment() {
             println("Internet is not enabled. Enabling it now...")
             context?.let { enableInternet(it) }
         }
-
 //        var apiResponse: MutableStateFlow<ApiResponse?> = MutableStateFlow(null)
 
+        threadCallJobAPI()
 
+        //enable searchview listener so can parse and generate new jobs
+        val filterIcon = binding.iconFilter
+
+        filterIcon.setOnClickListener {
+
+            val filterPopupFragment = DashboardFilterPopup()
+            filterPopupFragment.filterPopupListener = this // assuming your fragment implements FilterPopupListener
+            filterPopupFragment.show(
+                requireActivity().supportFragmentManager,
+                DashboardFilterPopup::class.java.simpleName
+            )
+        }
+
+
+        val searchView = binding.searchView
+        searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                // Handle query submission
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // Handle query text change
+                return true
+            }
+        })
+
+        return root
+    }
+
+
+
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun threadCallJobAPI(){
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             try {
                 getOnlineJobs { result ->
@@ -148,12 +232,86 @@ class DashboardFragment : Fragment() {
                 e.printStackTrace()
             }
         }
-
-        return root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    suspend fun jobSearchWithQuery(jobType: String, location: String, category:String){
+        withContext1(Dispatchers.IO) {
+            try {
+                // Perform the network request and invoke the callback with the result
+                var jobTypeSend =""
+                var locationSend =""
+                var categorySend =""
+                val stringList = mutableListOf<String>()
+
+                if (jobType != "level=No%20Preference"){
+                    stringList.add(jobType)
+                }else{
+                    stringList.add(jobTypeSend)
+                }
+                if (location != "location=No%20Preference"){
+                    stringList.add(location)
+                }
+                else{
+                    stringList.add(locationSend)
+                }
+                if (category != "category=No%20Preference"){
+                    stringList.add(category)
+                }
+                else{
+                    stringList.add(categorySend)
+                }
+
+                //parse through to add &
+                val result = StringBuilder()
+
+                stringList.forEachIndexed { index, item ->
+                    if (item != "") {
 
 
+                        result.append(item)
+                        if (index < stringList.size - 1) {
+                            result.append("&")
+                        }
+                    }
+
+                }
+                val finalSendURLString = result.toString()
+
+
+
+                val client = OkHttpClient()
+                val url = "https://www.themuse.com/api/public/jobs?$finalSendURLString&page=1"
+                val request = Request.Builder().url(url)
+                    .addHeader("Content-Type", "application/json")
+                    .build()
+                Log.d("katie", "befre newCall")
+
+                client.newCall(request).execute().use{ response ->
+                    if (response.isSuccessful) {
+//                        Log.d("katieSuccess", response.body!!.string())
+//                        Log.d("katieSuccesssecond Line", response.peekBody(2048).string())
+//
+                        val result = response.body!!.string()
+
+                        lifecycleScope.launch(Dispatchers.Main){
+                            updateUI(result, LayoutInflater.from(requireContext()))
+                        }
+//                        val result = Gson().toJson(response.body!!.string())
+//                        callback(result)
+                    } else {
+                        Log.d("katie", "newCall else statemnet")
+
+//                        callback("Error: ${response.code}")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("katie", "catch in api call")
+                Log.d("katieError", e.toString())
+//                callback("Error: ${e.message}")
+            }
+        }
+    }
 
 
 
@@ -180,165 +338,7 @@ class DashboardFragment : Fragment() {
         }
     }
 
-//    private fun populateCardView() {
-//        val data = listOf(
-//            mapOf(
-//                "company_name" to "Lineage Logistics",
-//                "formatted_relative_time" to "1 day ago",
-//                "id" to "2e8f4e2fbf1ff5f1",
-//                "link" to "/job/2e8f4e2fbf1ff5f1?locality=us",
-//                "locality" to "us",
-//                "location" to "Bedford Park, IL 60638",
-//                "pub_date_ts_milli" to 1698296400000,
-//                "salary" to mapOf<String, Any>(), // or "salary" to emptyMap()
-//                "title" to "Operations Manager"
-//            ),
-//            mapOf(
-//                "company_name" to "Sidley Austin LLP",
-//                "formatted_relative_time" to "3 days ago",
-//                "id" to "bfe2ad35f90b9e65",
-//                "link" to "/job/bfe2ad35f90b9e65?locality=us",
-//                "locality" to "us",
-//                "location" to "Chicago, IL 60603",
-//                "pub_date_ts_milli" to 1700632800000,
-//                "salary" to mapOf<String, Any>(),
-//                "title" to "Project Manager"
-//            ),
-//            mapOf(
-//                "company_name" to "Michael Page",
-//                "formatted_relative_time" to "2 days ago",
-//                "id" to "6a96cd056ba28a1d",
-//                "link" to "/job/6a96cd056ba28a1d?locality=us",
-//                "locality" to "us",
-//                "location" to "Chicago, IL",
-//                "pub_date_ts_milli" to 1700719200000,
-//                "salary" to mapOf(
-//                    "max" to 125000,
-//                    "min" to 105000,
-//                    "type" to "yearly"
-//                ),
-//                "title" to "Job Title"
-//            ),
-//            mapOf(
-//                "company_name" to "Uncle Julio's",
-//                "formatted_relative_time" to "Just posted",
-//                "id" to "24c6f81fba232e48",
-//                "link" to "/job/24c6f81fba232e48?locality=us",
-//                "locality" to "us",
-//                "location" to "Chicago, IL 60642",
-//                "pub_date_ts_milli" to 1701064800000,
-//                "salary" to mapOf(
-//                    "max" to 85000,
-//                    "min" to 65000,
-//                    "type" to "yearly"
-//                ),
-//                "title" to "Assistant General Manager"
-//            ),mapOf(
-//                "company_name" to "M & J Wilkow",
-//                "formatted_relative_time" to "Today",
-//                "id" to "c1438a42e8fd1042",
-//                "link" to "/job/c1438a42e8fd1042?locality=us",
-//                "locality" to "us",
-//                "location" to "Chicago, IL 60611",
-//                "pub_date_ts_milli" to 1700978400000,
-//                "salary" to mapOf(
-//                    "max" to 100000,
-//                    "min" to 80000,
-//                    "type" to "yearly"
-//                ),
-//                "title" to "Assistant General Manager"
-//            ),
-//            mapOf(
-//                "company_name" to "WatsonDwyer Inc.",
-//                "formatted_relative_time" to "3 days ago",
-//                "id" to "7b9c96ff78ae82b6",
-//                "link" to "/job/7b9c96ff78ae82b6?locality=us",
-//                "locality" to "us",
-//                "location" to "Chicago, IL",
-//                "pub_date_ts_milli" to 1700805600000,
-//                "salary" to mapOf(
-//                    "max" to 65000,
-//                    "min" to 65000,
-//                    "type" to "yearly"
-//                ),
-//                "title" to "Mini Office Manager (FT)"
-//            )
-//        )
-//
-//        var cardContainer = binding.cardHolder
-//
-//        for (i in 0 until 5) {
-//            Log.d("Katie", "in for loop")
-//            val inflater = LayoutInflater.from(context)
-//            val cardView = inflater.inflate(R.layout.fragment_dashboard_card, null) as CardView
-//            val historyJobTitle = cardView.findViewById<TextView>(R.id.history_job_title)
-//            val historyJobCompanyName = cardView.findViewById<TextView>(R.id.history_job_company_name)
-//            val historyJobDate = cardView.findViewById<TextView>(R.id.history_job_date)
-//            val historyJobLocation = cardView.findViewById<TextView>(R.id.history_job_location)
-//
-//            // Set values to the TextViews
-//            historyJobTitle.text = data[i]["title"] as CharSequence?
-//            historyJobCompanyName.text = data[i]["company_name"] as CharSequence?
-//            historyJobDate.text = data[i]["formatted_relative_time"] as CharSequence?
-//            historyJobLocation.text = data[i]["location"] as CharSequence?
-//
-//            // Add the populated CardView to the cardContainer
-//            cardContainer.addView(cardView)
-//        }
-//    }
-
-
-    //
-//private fun getOnlineJobs(callback:(String?) -> Unit) {
-//    try {
-//        val client = OkHttpClient()
-//
-//        val request = Request.Builder()
-////            .url("https://indeed12.p.rapidapi.com/jobs/search?query=manager&location=chicago&page_id=1&fromage=3&radius=10")
-//            .url("https://www.google.com")
-//            .get()
-////            .addHeader("Content-Type", "application/json")
-////            .addHeader("X-RapidAPI-Key", "b1e1ab1091mshcc9d4bcef44cbf0p1f1095jsn68c0743c6ce6")
-////            .addHeader("X-RapidAPI-Host", "indeed12.p.rapidapi.com")
-//            .build()
-//        Log.d("katie", "Request URL: ${request.url}")
-//
-//        client.newCall(request).enqueue(object : Callback {
-//            override fun onFailure(call: Call, e: IOException) {
-//                // Handle failure (e.g., network issues)
-//                Log.e("katie", "Network request failed", e)
-//                context?.let {
-//                    Handler(it.mainLooper).post {
-//                        Log.d("katie", "Callback failed")
-//                        callback(null)
-//                    }
-//                }
-//            }
-//
-//            override fun onResponse(call: Call, response: Response) {
-//                Log.d("katie", "in onResponse")
-//
-//                if (response.isSuccessful) {
-//                    // Log the response body
-//                    val responseBody = response.body?.string()
-//                    Log.d("katie Response Body", responseBody ?: "Empty response body")
-//                    context?.let {
-//                        Handler(it.mainLooper).post {
-//                            Log.d("katie", "Callback success")
-//                            callback(responseBody)
-//                        }
-//                    }
-//                } else {
-//                    Log.e("katie Network Error", "Unexpected code ${response.code}")
-//                    context?.let {
-//                        Handler(it.mainLooper).post {
-//                            Log.d("katie", "Callback failure")
-//                            callback(null)
-//                        }
-//                    }
-//                }
-//            }
-//        })
+    @RequiresApi(Build.VERSION_CODES.O)
     private suspend fun getOnlineJobs(callback: (String) -> Unit) {
         withContext1(Dispatchers.IO) {
             try {
@@ -380,6 +380,54 @@ class DashboardFragment : Fragment() {
         }
     }
 
+
+    private fun fetchCompanyLogo(companyDomain: String, callback: (String?) -> Unit) {
+        val searchDomain = "www." + companyDomain + ".com"
+
+        val apiUrl = "https://logo.clearbit.com/$searchDomain"
+
+        val client = OkHttpClient()
+
+        val request = Request.Builder()
+            .url(apiUrl)
+            .header("Authorization", "Bearer $clearbitApiKey")
+            .build()
+
+        client.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                // Handle failure (e.g., network issues)
+                context?.let {
+                    Handler(it.mainLooper).post {
+                        callback(null)
+                    }
+                }
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                // Handle the response
+                if (response.isSuccessful) {
+                    // Get the URL of the company logo
+                    val logoUrl = response.request.url.toString()
+
+                    // Use Handler to post the result back to the main thread
+                    context?.let {
+                        Handler(it.mainLooper).post {
+                            callback(logoUrl)
+                        }
+                    }
+                } else {
+                    // Handle non-successful responses
+                    context?.let {
+                        Handler(it.mainLooper).post {
+                            callback(null)
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     fun updateUI(result: String, inflater: LayoutInflater) {
         binding.cardHolder.removeAllViews()
         try{
@@ -389,34 +437,63 @@ class DashboardFragment : Fragment() {
             val apiResponse = gson.fromJson(jsonString, ApiResponse::class.java);
             val results: List<Result> = apiResponse.results
             var cardContainer = binding.cardHolder
-            for (i in 0 until results.size) {
-                val title = results[i].name
-                val company_name = results[i].shortName
-                val formatted_relative_time = results[i].publicationDate
-//                            val location = hitObject.getString("location")
-//                            withContext(Dispatchers.Main) {
-                // Create a CardView
-                val cardView =
-                    inflater.inflate(R.layout.home_recycled_cards, null) as CardView
+            if (results.size == 0){
+                binding.textNoResults.visibility = View.VISIBLE
+            }
+            else {
 
-                // Find TextViews in the CardView
-                val historyJobTitle =
-                    cardView.findViewById<TextView>(R.id.history_job_title)
-                val historyJobCompanyName =
-                    cardView.findViewById<TextView>(R.id.history_job_company_name)
-                val historyJobDate =
-                    cardView.findViewById<TextView>(R.id.history_job_date)
-//                                val historyJobLocation =
-//                                    cardView.findViewById<TextView>(R.id.history_job_location)
+                binding.textNoResults.visibility = View.GONE
+                for (i in 0 until results.size) {
+                    val title = results[i].name
+                    val company_name = results[i].company.name
+                    val instant = Instant.parse(results[i].publicationDate)
+                    val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                    val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    val formattedDate = localDateTime.format(dateFormatter)
+                    val formatted_relative_time = formattedDate
+                    //                            val location = hitObject.getString("location")
+                    //                            withContext(Dispatchers.Main) {
 
-                // Set values to the TextViews
-                historyJobTitle.text = title
-                historyJobCompanyName.text = company_name
-                historyJobDate.text = formatted_relative_time
-//                                historyJobLocation.text = location
+                    val cardView =
+                        inflater.inflate(R.layout.fragment_dashboard_card, null) as CardView
 
-                // Add the populated CardView to the cardContainer
-                cardContainer.addView(cardView)
+
+                    val historyJobTitle = cardView.findViewById<TextView>(R.id.dashJobTitle)
+                    val logo = cardView.findViewById<ImageView>(R.id.dashCardLogo)
+                    val historyJobCompanyName =
+                        cardView.findViewById<TextView>(R.id.dashCompanyName)
+                    val historyJobDate = cardView.findViewById<TextView>(R.id.dashJobDate)
+                    //                                val historyJobLocation =
+                    //                                    cardView.findViewById<TextView>(R.id.history_job_location)
+
+                    fetchCompanyLogo(company_name) { fetchedLogoUrl ->
+                        if (fetchedLogoUrl != null) {
+                            // Load the company logo
+                            Picasso.get().load(fetchedLogoUrl).into(logo)
+                            // Cache the logo URL
+                            logoCache[company_name] = fetchedLogoUrl
+                        } else if (fetchedLogoUrl == null) {
+                            // Use the default placeholder drawable
+                            logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
+                            //prevent accidental overwrite for existing companyNames with logos
+                            if (!logoCache.containsKey(company_name)) {
+                                logoCache[company_name] = "placeholder"
+                            }
+                        }
+                    }
+
+                    // Set values to the TextViews
+                    historyJobTitle.text = title
+                    historyJobCompanyName.text = company_name
+                    historyJobDate.text = formatted_relative_time
+                    //                                historyJobLocation.text = location
+
+                    cardView.setOnClickListener() {
+                        onCardClick(results[i])
+                    }
+
+                    cardContainer.addView(cardView)
+                }
             }
         }
         catch(e:Exception){
@@ -425,9 +502,24 @@ class DashboardFragment : Fragment() {
 
     }
 
+    private fun onCardClick(result: DashboardFragment.Result) {
+        val intent = Intent(activity, DashboardDetailedJob::class.java)
+        intent.putExtra("jobTitle", result.name);
+        intent.putExtra("companyName", result.company.name)
+        intent.putExtra("html", result.contents)
+        startActivity(intent)
 
+//        val bundle = Bundle()
+//        bundle.putString("companyName", result.company.name)
+//        bundle.putString("jobTitle", result.name)
+////        val action = DashboardFragmentDirections.actionDashboardFragmentToDashboardDetailedFragment(result)
+//
+//
+//        findNavController().navigate(action)
 
-        override fun onDestroyView() {
+    }
+
+    override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
