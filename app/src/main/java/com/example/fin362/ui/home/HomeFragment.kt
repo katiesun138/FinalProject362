@@ -190,10 +190,10 @@ class CardViewAdapter(jobList: List<com.example.fin362.ui.events.Job>, parentAct
             "Offer" -> {
                 displayedDate = job.dateOffer
             }
-                "Rejected" -> {
-                    displayedDate = job.dateRejected
-                }
+            "Rejected" -> {
+                displayedDate = job.dateRejected
             }
+        }
 
         if (displayedDate != null) {
             val outputFormat = SimpleDateFormat("MMM d, yyyy")

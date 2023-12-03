@@ -22,7 +22,6 @@
     <string-array name="history_graph_types">
         <item>Pie Chart View</item>
         <item>Bar Graph View</item>
-        <item>Sankey Diagram View</item>
     </string-array>
 
     <string name="history_graph_goto">Graphs</string>
