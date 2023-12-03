@@ -22,6 +22,7 @@ class DashboardFilterPopup : DialogFragment() {
         suspend fun onFiltersApplied(jobType: String, location: String, category: String)
     }
 
+    var overlayView: View? = null
     private lateinit var spinnerJobType: Spinner
     private lateinit var spinnerLocation: Spinner
     private lateinit var spinnerCategory: Spinner
@@ -44,6 +45,13 @@ class DashboardFilterPopup : DialogFragment() {
     ): View? {
 
         var view = inflater.inflate(R.layout.fragment_dashboard_filter_popup, container, false)
+        val layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        view.layoutParams = layoutParams
+
+
         val doneButton= view.findViewById<Button>(R.id.doneButton)
         val closeButton = view.findViewById<Button>(R.id.closeButton)
         spinnerJobType = view.findViewById(R.id.spinnerJobType)
@@ -67,7 +75,6 @@ class DashboardFilterPopup : DialogFragment() {
 
         return view
     }
-
 //    override fun onAttach(context: Context) {
 //        super.onAttach(context)
 //        if (context is FilterPopupListener) {
@@ -94,6 +101,17 @@ class DashboardFilterPopup : DialogFragment() {
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        view?.findViewById<View>(R.id.overlayView)?.visibility = View.VISIBLE
     }
+
+    override fun onDestroyView() {
+        overlayView?.visibility = View.GONE
+        super.onDestroyView()
+    }
+
+
 }

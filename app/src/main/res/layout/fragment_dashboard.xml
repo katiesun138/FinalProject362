@@ -110,6 +110,12 @@
             android:text="No results with that filter"/>
 
     </RelativeLayout>
+    <View
+        android:id="@+id/overlayView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone" />
 
 </FrameLayout>
 

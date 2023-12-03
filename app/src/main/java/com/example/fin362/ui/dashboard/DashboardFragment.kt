@@ -1,5 +1,6 @@
 package com.example.fin362.ui.dashboard
 
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.media.Image
@@ -16,6 +17,7 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.coroutines.withContext
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.SearchView
@@ -28,6 +30,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.fin362.R
 import com.example.fin362.databinding.FragmentDashboardBinding
+import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.picasso.Picasso
@@ -46,6 +49,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -179,8 +183,13 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
         filterIcon.setOnClickListener {
 
+            val overlayView = binding.overlayView
+
+            overlayView.visibility = View.VISIBLE
+
             val filterPopupFragment = DashboardFilterPopup()
-            filterPopupFragment.filterPopupListener = this // assuming your fragment implements FilterPopupListener
+            filterPopupFragment.filterPopupListener = this
+            filterPopupFragment.overlayView = overlayView // Pass the reference
             filterPopupFragment.show(
                 requireActivity().supportFragmentManager,
                 DashboardFilterPopup::class.java.simpleName
@@ -201,6 +210,13 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             }
         })
 
+
+        val profileBtn = binding.imageProfile
+
+        profileBtn.setOnClickListener(){
+            findNavController().navigate(R.id.nav_from_dash)
+
+        }
         return root
     }
 
@@ -508,6 +524,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         intent.putExtra("companyName", result.company.name)
         intent.putExtra("html", result.contents)
         startActivity(intent)
+
 
 //        val bundle = Bundle()
 //        bundle.putString("companyName", result.company.name)
