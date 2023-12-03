@@ -1,19 +1,31 @@
 package com.example.fin362.ui.dashboard
 
+import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Html
 import android.util.Log
+import android.util.Patterns
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.fin362.FirebaseDBManager
 import com.example.fin362.R
+import com.example.fin362.ui.events.Job
+import com.example.fin362.ui.events.SavedJobsAdapter
 import com.google.firebase.Timestamp
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -32,13 +44,15 @@ class DashboardDetailedJob : AppCompatActivity() {
         setContentView(R.layout.activity_dashboard_detailed_job)
         val backbtn = findViewById<Button>(R.id.backToDashboard)
         val description = findViewById<TextView>(R.id.jobDescription)
+        val location = findViewById<TextView>(R.id.jobLocation)
         val companynameRec = intent.getStringExtra("companyName")
         val jobtitleRec = intent.getStringExtra("jobTitle")
         val jobTypeRec = intent.getStringExtra("jobType")
-        val jobLocationsRec = intent.getStringExtra("location")
+        val jobLocationRec = intent.getStringExtra("location")
         val jobLinkRec = intent.getStringExtra("jobLink")
         val jobDescriptionRec = intent.getStringExtra("html")
         val savebtn = findViewById<Button>(R.id.saveButton)
+        val applybtn = findViewById<Button>(R.id.applyButton)
 
         if (companynameRec != null) {
             Log.d("katie value in dashboard detailed job", companynameRec)
@@ -48,9 +62,8 @@ class DashboardDetailedJob : AppCompatActivity() {
 
             companyName.text = companynameRec.toString()
             jobTitle.text = jobtitleRec.toString()
-
             description.text = jobDescriptionRec?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_COMPACT) }
-
+            location.text = jobLocationRec.toString()
 
             fetchCompanyLogo(companynameRec) { fetchedLogoUrl ->
                 if (fetchedLogoUrl != null ) {
@@ -78,16 +91,22 @@ class DashboardDetailedJob : AppCompatActivity() {
             firebaseDBManager.saveJob(
                 null, companynameRec!!, Timestamp.now(),null,
                 null, null, null, jobTypeRec!!, jobLinkRec!!,
-                jobLocationsRec!!, jobtitleRec!!, true
+                jobLocationRec!!, jobtitleRec!!, true
             )
             finish()
         }
 
+        applybtn.setOnClickListener() {
+            if (!jobLinkRec.isNullOrBlank() && Patterns.WEB_URL.matcher(jobLinkRec).matches()) {
+                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(jobLinkRec))
+                startActivity(intent)
+                finish()
+            }
+        }
     }
 
-
     private fun fetchCompanyLogo(companyDomain: String, callback: (String?) -> Unit) {
-        val searchDomain = "www." + companyDomain + ".com"
+        val searchDomain = companyDomain + ".com"
 
         val apiUrl = "https://logo.clearbit.com/$searchDomain"
 

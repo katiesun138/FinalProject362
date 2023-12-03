@@ -313,8 +313,6 @@ class EventsFragment : Fragment() {
             alertDialogBuilder.setMessage("Did you apply?")
             alertDialogBuilder.setPositiveButton("Yes") { _, _ ->
                 // Handle the OK button click if needed
-                Log.d("TEST", jobEntry.toString() + position)
-
                 lifecycleScope.launch(Dispatchers.Main) {
                     withContext(Dispatchers.IO) {
                         // Use GlobalScope for the background task

@@ -70,6 +70,21 @@
                 android:layout_height="wrap_content"
                 android:text="" />
 
+            <!-- Job Location Header and Text -->
+            <TextView
+                android:id="@+id/jobLocationHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:text="Location: " />
+
+            <TextView
+                android:id="@+id/jobLocation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
             <!-- Job Description Header and Text -->
             <TextView
                 android:id="@+id/jobDescriptionHeader"
@@ -87,12 +102,24 @@
         </LinearLayout>
     </ScrollView>
 
-    <Button
-        android:id="@+id/saveButton"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:layout_gravity="center_horizontal"
-        android:text="Save Job"/>
+        android:layout_gravity="center">
+        <Button
+            android:id="@+id/applyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Apply"/>
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_gravity="center_horizontal"
+            android:text="Save Job"/>
+    </LinearLayout>
 
 </LinearLayout>
