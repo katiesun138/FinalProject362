@@ -5,25 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:tag="history_job_card"
-    app:cardElevation="10dp"
+    app:cardElevation="4dp"
     app:cardBackgroundColor="@color/white"
-    app:cardCornerRadius="10dp"
-    app:cardPreventCornerOverlap="true"
+    app:cardCornerRadius="8dp"
+    android:layout_margin="8dp"
     app:cardUseCompatPadding="true">
 
     <RelativeLayout
         android:id="@+id/history_job"
         android:layout_width="match_parent"
-        android:padding="15dp"
-        android:layout_height="120dp">
+        android:layout_height="wrap_content"
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/dashCardLogo"
             android:layout_width="50dp"
             android:layout_height="50dp"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:src="@drawable/ic_company_placeholder_black_24dp"
-            android:paddingBottom="20dp"/>
+            android:scaleType="centerCrop"/>
         <TextView
             android:id="@+id/dashJobTitle"
             android:layout_width="220dp"
@@ -31,7 +32,8 @@
             android:text="@string/history_job_title"
             android:layout_toEndOf="@+id/dashCardLogo"
             android:textSize="20sp"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            android:layout_marginStart="10dp"/>
         <TextView
             android:id="@+id/dashCompanyName"
             android:layout_width="wrap_content"
@@ -39,7 +41,8 @@
             android:text="@string/history_job_company_name"
             android:layout_toEndOf="@id/dashCardLogo"
             android:layout_below="@id/dashJobTitle"
-            android:textSize="13sp"/>
+            android:textSize="13sp"
+            android:layout_marginStart="10dp"/>
         <TextView
             android:id="@+id/dashJobDate"
             android:layout_width="wrap_content"
@@ -47,7 +50,8 @@
             android:text="@string/history_job_date"
             android:textStyle="bold"
             android:layout_alignParentEnd="true"
-            android:textSize="15sp"/>
+            android:textSize="15sp"
+            android:layout_marginStart="10dp"/>
         <TextView
             android:id="@+id/dashJobLocation"
             android:layout_width="wrap_content"
@@ -56,7 +60,6 @@
             android:layout_alignParentEnd="true"
             android:layout_below="@id/dashJobDate"
             android:textSize="13sp"/>
-
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

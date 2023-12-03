@@ -425,7 +425,7 @@ class HomeFragment : Fragment() {
                                 val removedItem = viewModel.jobs.removeAt(position)
                                 if (deleteResult) {
                                     listSetup(view)
-                                    showUndoSnackbar(jobEntry, position, view, cardViewAdapter, removedItem)
+                                    showUndoSnackbar(jobEntry, position, view, removedItem)
                                 }
                             }
                         }
@@ -451,7 +451,7 @@ class HomeFragment : Fragment() {
         return view
     }
 
-    fun showUndoSnackbar(deletedItem: com.example.fin362.ui.events.Job?, position: Int, view: View, savedJobsAdapter: CardViewAdapter, removedItem: com.example.fin362.ui.events.Job) {
+    fun showUndoSnackbar(deletedItem: com.example.fin362.ui.events.Job?, position: Int, view: View, removedItem: com.example.fin362.ui.events.Job) {
         deletedItem?.let {
             val snackbar = Snackbar.make(
                 view,

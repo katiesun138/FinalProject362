@@ -40,7 +40,8 @@
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_gravity="center_horizontal"
-                    android:layout_margin="10dp"/>
+                    android:layout_margin="10dp"
+                    android:background="@android:color/transparent"/>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
                 android:id="@+id/history_detail_job_title"
@@ -58,7 +59,8 @@
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_gravity="center_horizontal"
-                    android:layout_margin="10dp"/>
+                    android:layout_margin="10dp"
+                    android:background="@android:color/transparent"/>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
                 android:id="@+id/history_detail_job_location"
@@ -76,7 +78,8 @@
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:layout_gravity="center_horizontal"
-                    android:layout_margin="10dp"/>
+                    android:layout_margin="10dp"
+                    android:background="@android:color/transparent"/>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
                 android:id="@+id/history_detail_job_status"
@@ -116,7 +119,8 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="10dp"
                     android:padding="10dp"
-                    android:text="@string/history_job_date"/>
+                    android:text="@string/history_job_date"
+                    android:background="@android:color/transparent"/>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
                 android:id="@+id/history_detail_link"
@@ -136,7 +140,8 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="10dp"
                     android:padding="10dp"
-                    android:text="@string/history_detail_notes"/>
+                    android:text="@string/history_detail_link"
+                    android:background="@android:color/transparent"/>
             </androidx.cardview.widget.CardView>
             <androidx.cardview.widget.CardView
                 android:id="@+id/history_detail_save"

@@ -16,7 +16,7 @@
     <string name="history_status_applied">Applied</string>
     <string name="history_status_offer">Offer</string>
 
-    <string name="history_detail_notes">Additional Notes</string>
+    <string name="history_detail_link">Link</string>
     <string name="history_detail_save">Save</string>
     
     <string-array name="history_graph_types">

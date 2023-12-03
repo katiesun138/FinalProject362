@@ -434,7 +434,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                     val company_name = results[i].company.name
                     val instant = Instant.parse(results[i].publicationDate)
                     val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
-                    val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, YYYY")
                     val formattedDate = localDateTime.format(dateFormatter)
                     val formatted_relative_time = formattedDate
 
@@ -490,6 +490,9 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         val intent = Intent(activity, DashboardDetailedJob::class.java)
         intent.putExtra("jobTitle", result.name);
         intent.putExtra("companyName", result.company.name)
+        intent.putExtra("location", result.locations[0].name)
+        intent.putExtra("jobLink", result.refs.landingPage)
+        intent.putExtra("jobType", result.levels[0].name)
         intent.putExtra("html", result.contents)
         startActivity(intent)
     }

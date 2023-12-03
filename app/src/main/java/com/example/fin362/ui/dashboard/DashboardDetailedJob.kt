@@ -10,7 +10,9 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
+import com.example.fin362.FirebaseDBManager
 import com.example.fin362.R
+import com.google.firebase.Timestamp
 import com.squareup.picasso.Picasso
 import okhttp3.Call
 import okhttp3.Callback
@@ -22,7 +24,7 @@ import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
 class DashboardDetailedJob : AppCompatActivity() {
-
+    val firebaseDBManager = FirebaseDBManager()
     private var clearbitApiKey = ""
     private val logoCache = ConcurrentHashMap<String, String?>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +34,9 @@ class DashboardDetailedJob : AppCompatActivity() {
         val description = findViewById<TextView>(R.id.jobDescription)
         val companynameRec = intent.getStringExtra("companyName")
         val jobtitleRec = intent.getStringExtra("jobTitle")
+        val jobTypeRec = intent.getStringExtra("jobType")
+        val jobLocationsRec = intent.getStringExtra("location")
+        val jobLinkRec = intent.getStringExtra("jobLink")
         val jobDescriptionRec = intent.getStringExtra("html")
         val savebtn = findViewById<Button>(R.id.saveButton)
 
@@ -70,7 +75,11 @@ class DashboardDetailedJob : AppCompatActivity() {
         }
 
         savebtn.setOnClickListener(){
-
+            firebaseDBManager.saveJob(
+                null, companynameRec!!, Timestamp.now(),null,
+                null, null, null, jobTypeRec!!, jobLinkRec!!,
+                jobLocationsRec!!, jobtitleRec!!, true
+            )
             finish()
         }
 
