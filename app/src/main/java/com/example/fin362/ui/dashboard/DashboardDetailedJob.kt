@@ -33,6 +33,7 @@ class DashboardDetailedJob : AppCompatActivity() {
         val companynameRec = intent.getStringExtra("companyName")
         val jobtitleRec = intent.getStringExtra("jobTitle")
         val jobDescriptionRec = intent.getStringExtra("html")
+        val savebtn = findViewById<Button>(R.id.saveButton)
 
         if (companynameRec != null) {
             Log.d("katie value in dashboard detailed job", companynameRec)
@@ -65,6 +66,11 @@ class DashboardDetailedJob : AppCompatActivity() {
 
         backbtn.setOnClickListener(){
             super.onBackPressed()
+            finish()
+        }
+
+        savebtn.setOnClickListener(){
+
             finish()
         }
 

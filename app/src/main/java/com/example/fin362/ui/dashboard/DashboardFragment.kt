@@ -166,7 +166,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         val root: View = binding.root
         val textView = binding.textDiscoverJobs
-//        populateCardView()
 
         if (context?.let { isInternetEnabled(it) } == true) {
             println("Internet is enabled.")
@@ -174,11 +173,10 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             println("Internet is not enabled. Enabling it now...")
             context?.let { enableInternet(it) }
         }
-//        var apiResponse: MutableStateFlow<ApiResponse?> = MutableStateFlow(null)
 
         threadCallJobAPI()
 
-        //enable searchview listener so can parse and generate new jobs
+        //filter button is enabled and popup triggered
         val filterIcon = binding.iconFilter
 
         filterIcon.setOnClickListener {
@@ -198,10 +196,11 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         }
 
 
+        //search bar for jobs
         val searchView = binding.searchView
         searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                // Handle query submission
+                // Handle submission
                 return true
             }
 
@@ -211,10 +210,9 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             }
         })
 
-
+        //move to profile page
         val profileBtn = binding.imageProfile
-
-        profileBtn.setOnClickListener(){
+        profileBtn.setOnClickListener() {
             findNavController().navigate(R.id.nav_from_dash)
 
         }
@@ -223,7 +221,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
 
 
-
+    //separate thread created to prepare for API call
     @RequiresApi(Build.VERSION_CODES.O)
     fun threadCallJobAPI(){
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
@@ -231,13 +229,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                 getOnlineJobs { result ->
                     try {
 
-//                        val jsonString = result.trimIndent();
-//                        val gson = Gson()
-//
-//                        val apiResponse = gson.fromJson(jsonString, ApiResponse::class.java);
-//                        val results: List<Result> = apiResponse.results
-//
-//                        updateUI(results, LayoutInflater.from(requireContext()))
                     } catch (e: Exception) {
                         e.printStackTrace()
                         Log.e("katie", "Error parsing JSON: ${e}")
@@ -250,6 +241,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         }
     }
 
+    //API call with queries specified by user
     @RequiresApi(Build.VERSION_CODES.O)
     suspend fun jobSearchWithQuery(jobType: String, location: String, category:String){
         withContext1(Dispatchers.IO) {
@@ -278,7 +270,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                     stringList.add(categorySend)
                 }
 
-                //parse through to add &
+                //parse through to add & to url
                 val result = StringBuilder()
 
                 stringList.forEachIndexed { index, item ->
@@ -292,33 +284,23 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                     }
 
                 }
+                //final api url with user queries enabled
                 val finalSendURLString = result.toString()
 
-
-
+                //api call
                 val client = OkHttpClient()
                 val url = "https://www.themuse.com/api/public/jobs?$finalSendURLString&page=1"
                 val request = Request.Builder().url(url)
                     .addHeader("Content-Type", "application/json")
                     .build()
-                Log.d("katie", "befre newCall")
 
                 client.newCall(request).execute().use{ response ->
                     if (response.isSuccessful) {
-//                        Log.d("katieSuccess", response.body!!.string())
-//                        Log.d("katieSuccesssecond Line", response.peekBody(2048).string())
-//
                         val result = response.body!!.string()
 
                         lifecycleScope.launch(Dispatchers.Main){
                             updateUI(result, LayoutInflater.from(requireContext()))
                         }
-//                        val result = Gson().toJson(response.body!!.string())
-//                        callback(result)
-                    } else {
-                        Log.d("katie", "newCall else statemnet")
-
-//                        callback("Error: ${response.code}")
                     }
                 }
             } catch (e: Exception) {
@@ -331,7 +313,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
 
 
-
+    //check for internet connection - connect if not already
     fun isInternetEnabled(context: Context): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -354,48 +336,35 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         }
     }
 
+    //once onload to page, API function request is called
     @RequiresApi(Build.VERSION_CODES.O)
     private suspend fun getOnlineJobs(callback: (String) -> Unit) {
         withContext1(Dispatchers.IO) {
             try {
-                // Perform the network request and invoke the callback with the result
                 val client = OkHttpClient()
                 val url = "https://www.themuse.com/api/public/jobs?location=Vancouver%2C%20Canada&page=1"
 //                val url = "https://indeed12.p.rapidapi.com/jobs/search?query=manager&location=chicago&page_id=1&fromage=3&radius=10"
                 val request = Request.Builder().url(url)
                     .addHeader("Content-Type", "application/json")
-//                    .addHeader("X-RapidAPI-Key", "b1e1ab1091mshcc9d4bcef44cbf0p1f1095jsn68c0743c6ce6")
-//                    .addHeader("X-RapidAPI-Host", "indeed12.p.rapidapi.com")
                     .build()
-                Log.d("katie", "befre newCall")
-//                Log.d("katie", client.newCall(request).execute().toString())
 
                 client.newCall(request).execute().use{ response ->
                     if (response.isSuccessful) {
-//                        Log.d("katieSuccess", response.body!!.string())
-//                        Log.d("katieSuccesssecond Line", response.peekBody(2048).string())
-//
                         val result = response.body!!.string()
 
                         lifecycleScope.launch(Dispatchers.Main){
                             updateUI(result, LayoutInflater.from(requireContext()))
                         }
-//                        val result = Gson().toJson(response.body!!.string())
-//                        callback(result)
                     } else {
-                        Log.d("katie", "newCall else statemnet")
 
                         callback("Error: ${response.code}")
                     }
                 }
             } catch (e: Exception) {
-                Log.d("katie", "catch in api call")
-                Log.d("katieError", e.toString())
                 callback("Error: ${e.message}")
             }
         }
     }
-
 
     private fun fetchCompanyLogo(companyDomain: String, callback: (String?) -> Unit) {
         val searchDomain = "www." + companyDomain + ".com"
@@ -443,6 +412,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         })
     }
 
+    //update ui from the jobs API - populate the job board
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateUI(result: String, inflater: LayoutInflater) {
         binding.cardHolder.removeAllViews()
@@ -467,8 +437,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                     val formattedDate = localDateTime.format(dateFormatter)
                     val formatted_relative_time = formattedDate
-                    //                            val location = hitObject.getString("location")
-                    //                            withContext(Dispatchers.Main) {
 
                     val cardView =
                         inflater.inflate(R.layout.fragment_dashboard_card, null) as CardView
@@ -479,8 +447,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                     val historyJobCompanyName =
                         cardView.findViewById<TextView>(R.id.dashCompanyName)
                     val historyJobDate = cardView.findViewById<TextView>(R.id.dashJobDate)
-                    //                                val historyJobLocation =
-                    //                                    cardView.findViewById<TextView>(R.id.history_job_location)
 
                     fetchCompanyLogo(company_name) { fetchedLogoUrl ->
                         if (fetchedLogoUrl != null) {
@@ -519,22 +485,13 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
     }
 
+    //function for when a job is clicked - will show the detailed job description
     private fun onCardClick(result: DashboardFragment.Result) {
         val intent = Intent(activity, DashboardDetailedJob::class.java)
         intent.putExtra("jobTitle", result.name);
         intent.putExtra("companyName", result.company.name)
         intent.putExtra("html", result.contents)
         startActivity(intent)
-
-
-//        val bundle = Bundle()
-//        bundle.putString("companyName", result.company.name)
-//        bundle.putString("jobTitle", result.name)
-////        val action = DashboardFragmentDirections.actionDashboardFragmentToDashboardDetailedFragment(result)
-//
-//
-//        findNavController().navigate(action)
-
     }
 
     override fun onDestroyView() {
