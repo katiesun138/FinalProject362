@@ -18,6 +18,38 @@ import kotlinx.coroutines.launch
 
 class DashboardFilterPopup : DialogFragment() {
 
+    object SharedPreferencesHelper {
+
+        private const val PREF_NAME = "FilterPrefs"
+        private const val KEY_JOB_TYPE = "jobType"
+        private const val KEY_LOCATION = "location"
+        private const val KEY_CATEGORY = "category"
+
+        fun saveFilterValues(context: Context, jobType: String, location: String, category: String) {
+            val editor = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit()
+            editor.putString(KEY_JOB_TYPE, jobType)
+            editor.putString(KEY_LOCATION, location)
+            editor.putString(KEY_CATEGORY, category)
+            editor.apply()
+        }
+
+        fun getFilterValues(context: Context): Triple<String, String, String> {
+            val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            return Triple(
+                prefs.getString(KEY_JOB_TYPE, "") ?: "",
+                prefs.getString(KEY_LOCATION, "") ?: "",
+                prefs.getString(KEY_CATEGORY, "") ?: ""
+            )
+        }
+
+        fun clearFilterValues(context: Context) {
+            val editor = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit()
+            editor.clear()
+            editor.apply()
+        }
+
+    }
+
     interface FilterPopupListener {
         suspend fun onFiltersApplied(jobType: String, location: String, category: String)
     }
@@ -58,6 +90,20 @@ class DashboardFilterPopup : DialogFragment() {
         spinnerLocation = view.findViewById(R.id.spinnerLocation)
         spinnerCategory = view.findViewById(R.id.spinnerCategory)
 //
+        val (savedJobType, savedLocation, savedCategory) = context?.let {
+            SharedPreferencesHelper.getFilterValues(it)
+        } ?: Triple("", "", "")
+
+        val locations = resources.getStringArray(R.array.locations)
+        val jobTypes = resources.getStringArray(R.array.job_types)
+        val categories = resources.getStringArray(R.array.categories)
+
+
+        setSpinnerSelection(spinnerJobType, savedJobType, jobTypes)
+        setSpinnerSelection(spinnerLocation, savedLocation, locations)
+        setSpinnerSelection(spinnerCategory, savedCategory, categories)
+
+
 
         doneButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
@@ -75,6 +121,13 @@ class DashboardFilterPopup : DialogFragment() {
 
         return view
     }
+
+    private fun setSpinnerSelection(spinner: Spinner, value: String, data: Array<String>) {
+        val position = data.indexOf(value)
+        if (position != -1) {
+            spinner.setSelection(position)
+        }
+    }
 //    override fun onAttach(context: Context) {
 //        super.onAttach(context)
 //        if (context is FilterPopupListener) {
@@ -90,6 +143,10 @@ class DashboardFilterPopup : DialogFragment() {
         val selectedJobType = spinnerJobType.selectedItem.toString()
         val selectedLocation = spinnerLocation.selectedItem.toString()
         val selectedCategory = spinnerCategory.selectedItem.toString()
+        context?.let {
+            SharedPreferencesHelper.saveFilterValues(it, selectedJobType, selectedLocation, selectedCategory)
+        }
+
 
         // Notify the listener with the selected filters
         filterPopupListener?.onFiltersApplied(selectedJobType, selectedLocation, selectedCategory)
@@ -108,9 +165,22 @@ class DashboardFilterPopup : DialogFragment() {
         view?.findViewById<View>(R.id.overlayView)?.visibility = View.VISIBLE
     }
 
+    //once view gets destroyed
     override fun onDestroyView() {
         overlayView?.visibility = View.GONE
         super.onDestroyView()
+    }
+
+    //once the application gets destroyed
+    override fun onDestroy() {
+        clearSharedPreferences()
+        super.onDestroy()
+    }
+
+    private fun clearSharedPreferences() {
+        context?.let {
+            SharedPreferencesHelper.clearFilterValues(it)
+        }
     }
 
 

@@ -189,7 +189,8 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
             val filterPopupFragment = DashboardFilterPopup()
             filterPopupFragment.filterPopupListener = this
-            filterPopupFragment.overlayView = overlayView // Pass the reference
+            //passing the reference to overlayView id , which is the VIEW that will darken screen
+            filterPopupFragment.overlayView = overlayView
             filterPopupFragment.show(
                 requireActivity().supportFragmentManager,
                 DashboardFilterPopup::class.java.simpleName
@@ -228,7 +229,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             try {
                 getOnlineJobs { result ->
-//                    textView.text = result
                     try {
 
 //                        val jsonString = result.trimIndent();
@@ -513,6 +513,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             }
         }
         catch(e:Exception){
+            binding.textNoResults.visibility = View.VISIBLE
             Log.d("katie error in updateUI", e.toString())
         }
 
