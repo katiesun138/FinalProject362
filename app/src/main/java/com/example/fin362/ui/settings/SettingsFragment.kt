@@ -9,6 +9,7 @@ import android.net.Uri
 import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import com.example.fin362.databinding.FragmentSettingsBinding
 import java.io.File
+import com.squareup.picasso.Picasso
 
 class SettingsFragment : Fragment() {
     private lateinit var cameraResult: ActivityResultLauncher<Intent>
@@ -73,7 +75,6 @@ class SettingsFragment : Fragment() {
 
             }
         }
-
         myViewModel = ViewModelProvider(this).get(MyViewModel::class.java)
         myViewModel.userImage.observe(viewLifecycleOwner){
                 bitMap: Bitmap ->
@@ -99,7 +100,12 @@ class SettingsFragment : Fragment() {
         val b3=sp.getString("b3","2024")
         val b4=sp.getString("b4","Grad")
 
-
+        val experienceImage: ImageView = binding.expIcon
+        val imageUrlForExp =  "https://logo.clearbit.com/$a2.com"
+        Picasso.get().load(imageUrlForExp).into(experienceImage)
+        val educationImage: ImageView = binding.educationIcon
+        val imageUrlForEdu = "https://www.$b2/favicon.ico"
+        Picasso.get().load(imageUrlForEdu).into(educationImage)
 
 
         val majorTextView:TextView=binding.tvMajor
@@ -217,9 +223,6 @@ class SettingsFragment : Fragment() {
             rejectedTextView.text=rejected
             offerTextView.text=offer
         }
-
-
-
 
         return root
     }
