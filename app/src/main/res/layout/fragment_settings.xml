@@ -52,6 +52,7 @@
                 android:textColor="@color/gray"
                 android:text="Edit"
                 android:gravity="right"
+                android:paddingRight="15dp"
                 />
             <LinearLayout
                 android:layout_width="match_parent"
@@ -198,6 +199,7 @@
                         android:layout_weight="0.2"
                         android:orientation="horizontal">
                         <ImageView
+                            android:id="@+id/exp_icon"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
                             android:layout_marginLeft="15dp"
@@ -234,6 +236,7 @@
                                 android:textSize="14sp"
                                 android:textColor="@color/darkgray"
                                 android:gravity="right"
+                                android:paddingRight="15dp"
                                 />
                         </LinearLayout>
                         <LinearLayout
@@ -259,6 +262,7 @@
                                 android:textSize="14sp"
                                 android:textColor="@color/darkgray"
                                 android:gravity="right"
+                                android:paddingRight="15dp"
                                 />
                         </LinearLayout>
                     </LinearLayout>
@@ -300,6 +304,7 @@
                         android:layout_weight="0.2"
                         android:orientation="horizontal">
                         <ImageView
+                            android:id="@+id/education_icon"
                             android:layout_width="50dp"
                             android:layout_height="50dp"
                             android:layout_marginLeft="15dp"
@@ -336,6 +341,7 @@
                                 android:textSize="14sp"
                                 android:textColor="@color/darkgray"
                                 android:gravity="right"
+                                android:paddingRight="15dp"
                                 />
                         </LinearLayout>
                         <LinearLayout
@@ -361,6 +367,7 @@
                                 android:textSize="14sp"
                                 android:textColor="@color/darkgray"
                                 android:gravity="right"
+                                android:paddingRight="15dp"
                                 />
                         </LinearLayout>
                     </LinearLayout>

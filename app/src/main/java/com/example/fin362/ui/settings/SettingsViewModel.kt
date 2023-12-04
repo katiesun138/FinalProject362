@@ -1,7 +1,5 @@
 package com.example.fin362.ui.settings
 
-import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

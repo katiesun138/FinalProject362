@@ -1,9 +1,7 @@
 package com.example.fin362.ui.dashboard
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
-import android.media.Image
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
@@ -12,16 +10,10 @@ import android.os.Handler
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.coroutines.withContext
-import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageView
-import android.widget.PopupMenu
 import android.widget.ScrollView
-import android.widget.SearchView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
@@ -32,30 +24,22 @@ import androidx.navigation.fragment.findNavController
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.fin362.R
 import com.example.fin362.databinding.FragmentDashboardBinding
-import com.google.firebase.Timestamp
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.json.JSONException
-import org.json.JSONObject
-import org.w3c.dom.Text
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.Calendar
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.withContext as withContext1
 
 class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {

@@ -13,8 +13,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.ActivityResult
@@ -22,15 +20,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.Observer
-import com.example.fin362.R
-import com.example.fin362.FirebaseDBManager
-import com.example.fin362.ui.events.Job
 import com.example.fin362.databinding.FragmentSettingsBinding
 import java.io.File
-import android.graphics.drawable.BitmapDrawable
 
 class SettingsFragment : Fragment() {
     private lateinit var cameraResult: ActivityResultLauncher<Intent>
@@ -107,6 +98,10 @@ class SettingsFragment : Fragment() {
         val b2=sp.getString("b2","Simon Fraser University")
         val b3=sp.getString("b3","2024")
         val b4=sp.getString("b4","Grad")
+
+
+
+
         val majorTextView:TextView=binding.tvMajor
         settingsViewModel.major.observe(viewLifecycleOwner){
             majorTextView.text=b1

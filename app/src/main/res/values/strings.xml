@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">JobCentral</string>
-    <string name="title_home">Applications</string>
+    <string name="title_home">Your Applications</string>
     <string name="title_dashboard">Jobs</string>
-    <string name="title_events">Saved</string>
+    <string name="title_events">Your Saved Jobs</string>
     <string name="title_settings">Profile</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

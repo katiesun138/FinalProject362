@@ -81,9 +81,9 @@
 
             <ImageView
                 android:id="@+id/iconFilter"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:src="@drawable/filtericon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_filter_icon_black24dp"
                 android:layout_alignTop="@id/searchView"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="16dp"/>
