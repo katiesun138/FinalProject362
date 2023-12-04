@@ -9,30 +9,30 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:hint="@string/name"/>
+        android:hint="name"/>
     <EditText
         android:id="@+id/profile_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:hint="@string/email"/>
+        android:hint="email"/>
     <EditText
         android:id="@+id/profile_linkedln"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:hint="@string/linkedln"/>
+        android:hint="linkedln"/>
     <EditText
         android:id="@+id/profile_Github"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:hint="@string/github"/>
+        android:hint="github"/>
     <EditText
         android:id="@+id/profile_Portfolio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textPersonName"
-        android:hint="@string/portfolio"/>
+        android:hint="portfolio"/>
 
 </LinearLayout>
