@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.fin362.R
 
 class InputDialog: DialogFragment(), DialogInterface.OnClickListener {
@@ -60,11 +61,10 @@ class InputDialog: DialogFragment(), DialogInterface.OnClickListener {
     override fun onClick(dialog: DialogInterface?, item: Int) {
         if (item == DialogInterface.BUTTON_POSITIVE) {
             save()
-            Toast.makeText(activity, "ok clicked", Toast.LENGTH_LONG).show()
-
+            Toast.makeText(activity, "Profile Saved", Toast.LENGTH_LONG).show()
 
         } else if (item == DialogInterface.BUTTON_NEGATIVE) {
-            Toast.makeText(activity, "cancel clicked", Toast.LENGTH_LONG).show()
+            Toast.makeText(activity, "Cancelled", Toast.LENGTH_LONG).show()
         }
     }
     override fun onSaveInstanceState(outState: Bundle) {
