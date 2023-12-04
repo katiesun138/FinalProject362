@@ -10,6 +10,22 @@ import com.example.fin362.FirebaseDBManager
 class SettingsViewModel : ViewModel() {
     var db = FirebaseDBManager()
     var status:MutableList<String> = mutableListOf()
+    private val _job = MutableLiveData<String>().apply {
+        value = "Software Engineer"
+    }
+    val job: LiveData<String> = _job
+    private val _company = MutableLiveData<String>().apply {
+        value = "Spotify"
+    }
+    val company: LiveData<String> = _company
+    private val _major = MutableLiveData<String>().apply {
+        value = "BSc Computer Science"
+    }
+    val major: LiveData<String> = _major
+    private val _school = MutableLiveData<String>().apply {
+        value = "Simon Fraser"
+    }
+    val school: LiveData<String> = _school
     private val _username = MutableLiveData<String>().apply {
         value = "John Doe"
     }
