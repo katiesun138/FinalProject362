@@ -252,4 +252,39 @@ class FirebaseDBManager {
                 }
         }
     }
+    fun getStatusInformation(callback:(List<String>)->Unit){
+        currentUser?.let { user ->
+            val usersCollection: CollectionReference = firestore.collection("users").document(user.uid).collection("jobs")
+            val query: Query = usersCollection.whereEqualTo("is_saved", true).orderBy("date_saved", Query.Direction.DESCENDING)
+            query.get()
+                .addOnSuccessListener { documents ->
+                    val dataList = ArrayList<String>()
+                    var applied: Int =0
+                    var interviewing: Int =0
+                    var rejected:Int=0
+                    for (document in documents) {
+                        val appStatus = document.getString("app_status") ?: null
+                        if (appStatus=="Applied"){
+                            applied+=1
+                        }
+                        if (appStatus=="Interviewing"){
+                            interviewing+=1
+                        }
+                        if (appStatus=="Rejected"){
+                            rejected+=1
+                        }
+
+                    }
+                    dataList.add(applied.toString())
+                    dataList.add(interviewing.toString())
+                    dataList.add(rejected.toString())
+
+                    callback(dataList)
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("DB", "Error getting user data", exception)
+                }
+        }
+
+    }
 }
