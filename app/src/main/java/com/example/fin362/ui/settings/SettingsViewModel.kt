@@ -1,10 +1,15 @@
 package com.example.fin362.ui.settings
 
+import android.content.SharedPreferences
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.fin362.FirebaseDBManager
 
 class SettingsViewModel : ViewModel() {
+    var db = FirebaseDBManager()
+    var status:MutableList<String> = mutableListOf()
     private val _username = MutableLiveData<String>().apply {
         value = "John Doe"
     }

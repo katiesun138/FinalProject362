@@ -36,7 +36,7 @@ class EditResumeActivity : AppCompatActivity() {
         }
         val saveTextView = findViewById<TextView>(R.id.tv_save)
         saveTextView.setOnClickListener{
-
+            finish()
         }
     }
 
@@ -119,7 +119,7 @@ class EditResumeActivity : AppCompatActivity() {
 
                         filenameTextView.text = filename
                         val filesizeTextView = findViewById<TextView>(R.id.tv_filesize)
-                        filesizeTextView.text = "287 KB"
+                        filesizeTextView.text = "less than 1 MB"
                         fileinfoLL.visibility = View.VISIBLE
                         uploadTextView.visibility = View.GONE
                         val saveTextView = findViewById<TextView>(R.id.tv_save)
