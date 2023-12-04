@@ -66,6 +66,10 @@ class SettingsFragment : Fragment() {
         settingsViewModel.rejected.observe(viewLifecycleOwner) {
             rejectedTextView.text = it
         }
+        val offerTextView: TextView = binding.tvOffer
+        settingsViewModel.offer.observe(viewLifecycleOwner) {
+            offerTextView.text = it
+        }
         val engineerTextView: TextView = binding.tvEngineer
         settingsViewModel.engineer.observe(viewLifecycleOwner) {
             engineerTextView.text = it
@@ -117,9 +121,11 @@ class SettingsFragment : Fragment() {
             var applied=settingsViewModel.status[0]
             var interviewing=settingsViewModel.status[1]
             var rejected=settingsViewModel.status[2]
+            var offer=settingsViewModel.status[3]
             appliedTextView.text=applied
             interviewingTextView.text=interviewing
             rejectedTextView.text=rejected
+            offerTextView.text=offer
         }
 
 

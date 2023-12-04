@@ -35,6 +35,11 @@ class SettingsViewModel : ViewModel() {
     }
     var rejected: LiveData<String> = _rejected
 
+    private val _offer = MutableLiveData<String>().apply {
+        value = "14"
+    }
+    var offer: LiveData<String> = _offer
+
     private val _engineer = MutableLiveData<String>().apply {
         value = "San Jose,US"
     }
