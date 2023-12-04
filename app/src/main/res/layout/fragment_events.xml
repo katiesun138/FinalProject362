@@ -7,30 +7,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.events.EventsFragment"
-    android:orientation="vertical"
-    android:layout_marginTop="?attr/actionBarSize">
+    android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <LinearLayout
-            android:id="@+id/event_header"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginTop="10dp">
-            <TextView
-                android:id="@+id/event_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Your Saved Jobs"
-                android:textAlignment="center"
-                android:textSize="20sp"
-                android:layout_weight="1"
-                />
-        </LinearLayout>
 
         <include
             android:id="@+id/search_bar"

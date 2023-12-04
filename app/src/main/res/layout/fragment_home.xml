@@ -14,11 +14,23 @@
     android:background="?android:windowBackground">
 
     <LinearLayout
+        android:id="@+id/history_graph_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/history_graph_goto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/history_graph_goto"/>
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/history_filter_scroll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true">
+
+        android:layout_below="@+id/history_graph_layout">
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -107,11 +119,6 @@
                     android:divider="@android:color/transparent"
                     android:dividerHeight="12dp"
                     />
-                <Button
-                    android:id="@+id/history_graph_goto"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/history_graph_goto"/>
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
