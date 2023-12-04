@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.fin362.R
 import com.example.fin362.databinding.FragmentDashboardBinding
 import com.google.firebase.Timestamp
@@ -62,6 +63,8 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
     private var clearbitApiKey = ""
     private val logoCache = ConcurrentHashMap<String, String?>()
     private lateinit var dashboardViewModel: DashboardViewModel
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+
 
 
 
@@ -224,6 +227,11 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             )
         }
 
+        swipeRefreshLayout = binding.swiperefreshlayout
+        swipeRefreshLayout.setOnRefreshListener {
+            threadCallJobAPI()
+        }
+
 
         //search bar for jobs
         val searchView = binding.searchView
@@ -264,6 +272,8 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                     }
                 }
                 getOtherOnlineJob("","")
+                swipeRefreshLayout.isRefreshing = false
+
             } catch (e: Exception) {
                 Log.d("katie", "error in viewCreate")
                 e.printStackTrace()
