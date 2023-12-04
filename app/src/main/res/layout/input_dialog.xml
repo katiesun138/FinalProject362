@@ -8,11 +8,31 @@
         android:id="@+id/profile_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"/>
+        android:inputType="textPersonName"
+        android:hint="@string/name"/>
     <EditText
         android:id="@+id/profile_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPersonName"/>
+        android:inputType="textPersonName"
+        android:hint="@string/email"/>
+    <EditText
+        android:id="@+id/profile_linkedln"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="@string/linkedln"/>
+    <EditText
+        android:id="@+id/profile_Github"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="@string/github"/>
+    <EditText
+        android:id="@+id/profile_Portfolio"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:hint="@string/portfolio"/>
 
 </LinearLayout>
