@@ -7,7 +7,6 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.DialogFragment
@@ -54,11 +53,6 @@ class InputDialog2: DialogFragment(), DialogInterface.OnClickListener {
     override fun onClick(dialog: DialogInterface?, item: Int) {
         if (item == DialogInterface.BUTTON_POSITIVE) {
             save()
-            Toast.makeText(activity, "ok clicked", Toast.LENGTH_LONG).show()
-
-
-        } else if (item == DialogInterface.BUTTON_NEGATIVE) {
-            Toast.makeText(activity, "cancel clicked", Toast.LENGTH_LONG).show()
         }
     }
 
