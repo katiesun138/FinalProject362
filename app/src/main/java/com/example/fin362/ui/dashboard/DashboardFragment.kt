@@ -80,7 +80,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             var sendCategory = "category=$categoryReplace"
 
         jobSearchWithQuery(sendJobType, sendLocation, sendCategory)
-            getOtherOnlineJob(sendLocation, sendCategory)
+            getOtherOnlineJob(jobType, location, category)
         }
     }
 
@@ -198,24 +198,8 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             context?.let { enableInternet(it) }
             dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
         }
-        if (::dashboardViewModel.isInitialized) {
-            if (dashboardViewModel.jobsResult != null) {
-                updateUIWithViewModelData(dashboardViewModel.jobsResult!!, inflater)
 
-                // Check if jobsResult has data
-                if (dashboardViewModel.jobsResult!!.isNotEmpty()) {
-                    updateUIWithViewModelData2(dashboardViewModel.otherJobsResult!!, inflater, true)
-                } else {
-                    updateUIWithViewModelData2(dashboardViewModel.otherJobsResult!!, inflater, false)
-                }
-            } else {
-                threadCallJobAPI()
-            }
-        } else {
-            // Initialize the ViewModel if not initialized
-            dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
-            threadCallJobAPI()
-        }
+        loadBackupOrNot(inflater)
       
 
         //filter button is enabled and popup triggered
@@ -248,7 +232,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
         swipeRefreshLayout = binding.swiperefreshlayout
         swipeRefreshLayout.setOnRefreshListener {
-            threadCallJobAPI()
+            loadBackupOrNot(inflater)
         }
 
 
@@ -278,6 +262,30 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
+    private fun loadBackupOrNot(inflater: LayoutInflater){
+        if (::dashboardViewModel.isInitialized) {
+            if (dashboardViewModel.jobsResult != null) {
+                updateUIWithViewModelData(dashboardViewModel.jobsResult!!, inflater)
+
+                // Check if jobsResult has data
+                if (dashboardViewModel.jobsResult!!.isNotEmpty()) {
+                    updateUIWithViewModelData2(dashboardViewModel.otherJobsResult!!, inflater, true)
+                } else {
+                    updateUIWithViewModelData2(dashboardViewModel.otherJobsResult!!, inflater, false)
+                }
+            } else {
+                threadCallJobAPI()
+            }
+            swipeRefreshLayout.isRefreshing = false
+
+        } else {
+            // Initialize the ViewModel if not initialized
+            dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
+            threadCallJobAPI()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun searchBarSearch(query:String) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
             getOtherOnlineJobSearch("",query)
@@ -298,7 +306,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                         Log.e("katie", "Error parsing JSON: ${e}")
                     }
                 }
-                getOtherOnlineJob("","")
+                getOtherOnlineJob("","","")
                 swipeRefreshLayout.isRefreshing = false
 
             } catch (e: Exception) {
@@ -432,16 +440,23 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun getOtherOnlineJob(country:String, role:String) {
+    private suspend fun getOtherOnlineJob(type:String, country:String, role:String) {
         withContext1(Dispatchers.IO) {
             try {
                 val client = OkHttpClient()
                 var cCode = "us"
-                if (country.contains("Canada")){
+                if (country.contains("Canada")) {
                     cCode = "ca"
                 }
-                var percentSearch = replaceSpaceWithPercent(role)
-                var query = "&what=$percentSearch"
+                var percentQuery = replaceSpaceWithPercent(type)
+                if (!(role.contains("No Preference")) || !(role.contains(""))) {
+                    percentQuery = replaceSpaceWithPercent(role)
+                }
+//                    else if (role != "") {
+//                        percentQuery = replaceSpaceWithPercent(role)
+//                    }
+                var query = "&what=$percentQuery"
+
                 val url = "https://api.adzuna.com/v1/api/jobs/$cCode/search/1?app_id=1c42f8f0&app_key=9c6dc2aeac748a9a7873a6c071931a67$query"
                 val request = Request.Builder().url(url)
                     .addHeader("Content-Type", "application/json")
@@ -754,12 +769,12 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
             fetchCompanyLogo(company_name) { fetchedLogoUrl ->
                 if (fetchedLogoUrl != null) {
-                    // Load the company logo
+                    //  the company logo
                     Picasso.get().load(fetchedLogoUrl).into(logo)
-                    // Cache the logo URL
+                    // caching the logo URL
                     logoCache[company_name] = fetchedLogoUrl
                 } else if (fetchedLogoUrl == null) {
-                    // Use the default placeholder drawable
+                    //  default placeholder drawable
                     logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
                     //prevent accidental overwrite for existing companyNames with logos
                     if (!logoCache.containsKey(company_name)) {
@@ -768,7 +783,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                 }
             }
 
-            // Set values to the TextViews
+            // set values to the TextViews
             historyJobTitle.text = title
             historyJobCompanyName.text = company_name
             historyJobDate.text = formatted_relative_time
