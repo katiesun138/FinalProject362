@@ -20,6 +20,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.PopupMenu
+import android.widget.ScrollView
 import android.widget.SearchView
 import android.widget.TextView
 import androidx.annotation.RequiresApi
@@ -226,6 +227,16 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                 DashboardFilterPopup::class.java.simpleName
             )
         }
+
+        val scrollView: ScrollView = binding.scrollView
+
+        scrollView.viewTreeObserver.addOnScrollChangedListener {
+            // Check if the scroll view is at the top
+            val isAtTop = scrollView.scrollY == 0
+            // Enable or disable swipe refresh layout based on scroll position
+            swipeRefreshLayout.isEnabled = isAtTop
+        }
+
 
         swipeRefreshLayout = binding.swiperefreshlayout
         swipeRefreshLayout.setOnRefreshListener {
