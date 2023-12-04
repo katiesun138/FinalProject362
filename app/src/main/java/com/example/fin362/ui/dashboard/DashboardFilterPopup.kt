@@ -61,15 +61,6 @@ class DashboardFilterPopup : DialogFragment() {
 
     var filterPopupListener: FilterPopupListener? = null
 
-//    override fun onAttach(context: Context) {
-//        super.onAttach(context)
-//        if (context is FilterPopupListener) {
-//            filterPopupListener = context
-//        } else {
-//            throw ClassCastException("$context must implement FilterPopupListener")
-//        }
-//    }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -124,7 +115,7 @@ class DashboardFilterPopup : DialogFragment() {
     }
 
     private suspend fun applyFilters() {
-        // Get selected values from spinners
+        // get selected values from spinners
         val selectedJobType = spinnerJobType.selectedItem.toString()
         val selectedLocation = spinnerLocation.selectedItem.toString()
         val selectedCategory = spinnerCategory.selectedItem.toString()

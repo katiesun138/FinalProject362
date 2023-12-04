@@ -44,7 +44,6 @@ class DashboardDetailedJob : AppCompatActivity() {
         setContentView(R.layout.activity_dashboard_detailed_job)
         val backbtn = findViewById<Button>(R.id.backToDashboard)
         val description = findViewById<TextView>(R.id.jobDescription)
-        val location = findViewById<TextView>(R.id.jobLocation)
         val companynameRec = intent.getStringExtra("companyName")
         val jobtitleRec = intent.getStringExtra("jobTitle")
         var jobTypeRec = intent.getStringExtra("jobType")
@@ -58,7 +57,6 @@ class DashboardDetailedJob : AppCompatActivity() {
         val applybtn = findViewById<Button>(R.id.applyButton)
 
         if (companynameRec != null) {
-            Log.d("katie value in dashboard detailed job", companynameRec)
             val companyName = findViewById<TextView>(R.id.companyName)
             val jobTitle = findViewById<TextView>(R.id.jobTitle)
             val logo = findViewById<ImageView>(R.id.companyLogo)
@@ -74,12 +72,12 @@ class DashboardDetailedJob : AppCompatActivity() {
 
             fetchCompanyLogo(companynameRec) { fetchedLogoUrl ->
                 if (fetchedLogoUrl != null ) {
-                    // Load the company logo
+                    // load the company logo
                     Picasso.get().load(fetchedLogoUrl).into(logo)
-                    // Cache the logo URL
+                    // cache the logo URL
                     logoCache[companynameRec] = fetchedLogoUrl
                 } else if (fetchedLogoUrl == null) {
-                    // Use the default placeholder drawable
+                    // wse the default placeholder drawable
                     logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
                     //prevent accidental overwrite for existing companyNames with logos
                     if (!logoCache.containsKey(companynameRec)) {
@@ -136,12 +134,12 @@ class DashboardDetailedJob : AppCompatActivity() {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                // Handle the response
+                // handle the response
                 if (response.isSuccessful) {
-                    // Get the URL of the company logo
+                    // get the URL of the company logo
                     val logoUrl = response.request.url.toString()
 
-                    // Use Handler to post the result back to the main thread
+                    // use Handler to post the result back to the main thread
                     this?.let {
                         Handler(Looper.getMainLooper()).post {
                             callback(logoUrl)

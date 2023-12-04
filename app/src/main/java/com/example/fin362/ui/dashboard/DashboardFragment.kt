@@ -303,14 +303,12 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
                     } catch (e: Exception) {
                         e.printStackTrace()
-                        Log.e("katie", "Error parsing JSON: ${e}")
                     }
                 }
                 getOtherOnlineJob("","","")
                 swipeRefreshLayout.isRefreshing = false
 
             } catch (e: Exception) {
-                Log.d("katie", "error in viewCreate")
                 e.printStackTrace()
             }
         }
@@ -379,9 +377,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                     }
                 }
             } catch (e: Exception) {
-                Log.d("katie", "catch in api call")
-                Log.d("katieError", e.toString())
-//                callback("Error: ${e.message}")
+                Log.e("Error", e.toString())
             }
         }
     }
@@ -452,9 +448,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                 if (!(role.contains("No Preference")) || !(role.contains(""))) {
                     percentQuery = replaceSpaceWithPercent(role)
                 }
-//                    else if (role != "") {
-//                        percentQuery = replaceSpaceWithPercent(role)
-//                    }
                 var query = "&what=$percentQuery"
 
                 val url = "https://api.adzuna.com/v1/api/jobs/$cCode/search/1?app_id=1c42f8f0&app_key=9c6dc2aeac748a9a7873a6c071931a67$query"
@@ -579,7 +572,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         }
         catch(e:Exception){
             binding.textNoResults.visibility = View.VISIBLE
-            Log.d("katie error in updateUI", e.toString())
         }
 
     }
@@ -702,7 +694,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         }
         catch(e:Exception){
             binding.textNoResults.visibility = View.VISIBLE
-            Log.d("katie error in updateUI", e.toString())
         }
 
     }
