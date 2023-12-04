@@ -84,12 +84,12 @@ class DashboardFilterPopup : DialogFragment() {
         view.layoutParams = layoutParams
 
 
-        val doneButton= view.findViewById<Button>(R.id.doneButton)
+        val doneButton = view.findViewById<Button>(R.id.doneButton)
         val closeButton = view.findViewById<Button>(R.id.closeButton)
         spinnerJobType = view.findViewById(R.id.spinnerJobType)
         spinnerLocation = view.findViewById(R.id.spinnerLocation)
         spinnerCategory = view.findViewById(R.id.spinnerCategory)
-//
+
         val (savedJobType, savedLocation, savedCategory) = context?.let {
             SharedPreferencesHelper.getFilterValues(it)
         } ?: Triple("", "", "")
@@ -98,25 +98,19 @@ class DashboardFilterPopup : DialogFragment() {
         val jobTypes = resources.getStringArray(R.array.job_types)
         val categories = resources.getStringArray(R.array.categories)
 
-
         setSpinnerSelection(spinnerJobType, savedJobType, jobTypes)
         setSpinnerSelection(spinnerLocation, savedLocation, locations)
         setSpinnerSelection(spinnerCategory, savedCategory, categories)
 
-
-
         doneButton.setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-//
                 applyFilters()
             }
-
             dialog?.dismiss()
-
         }
 
         closeButton.setOnClickListener {
-            dialog?.dismiss()  // Close the dialog
+            dialog?.dismiss()
         }
 
         return view
@@ -128,15 +122,6 @@ class DashboardFilterPopup : DialogFragment() {
             spinner.setSelection(position)
         }
     }
-//    override fun onAttach(context: Context) {
-//        super.onAttach(context)
-//        if (context is FilterPopupListener) {
-//            filterPopupListener = context
-//        } else {
-//            throw ClassCastException("$context must implement FilterPopupListener")
-//        }
-//    }
-
 
     private suspend fun applyFilters() {
         // Get selected values from spinners
@@ -148,10 +133,7 @@ class DashboardFilterPopup : DialogFragment() {
         }
 
 
-        // Notify the listener with the selected filters
         filterPopupListener?.onFiltersApplied(selectedJobType, selectedLocation, selectedCategory)
-
-        // Dismiss the fragment
         dismiss()
     }
 
@@ -172,10 +154,10 @@ class DashboardFilterPopup : DialogFragment() {
     }
 
     //once the application gets destroyed
-    override fun onDestroy() {
-        clearSharedPreferences()
-        super.onDestroy()
-    }
+//    override fun onDestroy() {
+//        clearSharedPreferences()
+//        super.onDestroy()
+//    }
 
     private fun clearSharedPreferences() {
         context?.let {

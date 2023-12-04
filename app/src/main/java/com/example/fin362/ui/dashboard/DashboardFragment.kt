@@ -237,7 +237,9 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         val searchView = binding.searchView
         searchView.setOnQueryTextListener(object : androidx.appcompat.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                // Handle submission
+                searchBarSearch(query!!)
+
+                searchView.clearFocus()
                 return true
             }
 
@@ -256,6 +258,12 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         return root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun searchBarSearch(query:String) {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
+            getOtherOnlineJobSearch("",query)
+        }
+    }
 
 
     //separate thread created to prepare for API call
@@ -439,6 +447,109 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         }
     }
 
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private suspend fun getOtherOnlineJobSearch(country:String, role:String) {
+        withContext1(Dispatchers.IO) {
+            try {
+                val client = OkHttpClient()
+                var cCode = "us"
+                if (country.contains("Canada")){
+                    cCode = "ca"
+                }
+                var percentSearch = replaceSpaceWithPercent(role)
+                var query = "&what=$percentSearch"
+                val url = "https://api.adzuna.com/v1/api/jobs/$cCode/search/1?app_id=1c42f8f0&app_key=9c6dc2aeac748a9a7873a6c071931a67$query"
+                val request = Request.Builder().url(url)
+                    .addHeader("Content-Type", "application/json")
+                    .build()
+
+                client.newCall(request).execute().use{ response ->
+                    if (response.isSuccessful) {
+                        val result = response.body!!.string()
+
+                        lifecycleScope.launch(Dispatchers.Main){
+                            updateUI2Search(result, LayoutInflater.from(requireContext()))
+                        }
+                    } else {
+
+                        Log.d("Error:" , response.code.toString())
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("Error: ", e.message.toString())
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun populateCardsUI2(result: String, inflater: LayoutInflater){
+        try{
+            val jsonString = result.trimIndent()
+            val gson = Gson()
+
+            val apiResponse = gson.fromJson(jsonString, OtherJobClass::class.java);
+            val results = apiResponse.results
+            var cardContainer = binding.cardHolder
+            dashboardViewModel.otherJobsResult = results
+
+            binding.textNoResults.visibility = View.GONE
+            for (i in 0 until results.size) {
+                val title = results[i].title
+                val company_name = results[i].company.display_name
+                val location = results[i].location.display_name
+                val instant = Instant.parse(results[i].created)
+                val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                val dateFormatter = DateTimeFormatter.ofPattern("MMM dd yyyy")
+                val formattedDate = localDateTime.format(dateFormatter)
+                val formatted_relative_time = formattedDate
+
+                val cardView = inflater.inflate(R.layout.fragment_dashboard_card, null) as CardView
+
+
+                val historyJobTitle = cardView.findViewById<TextView>(R.id.dashJobTitle)
+                val logo = cardView.findViewById<ImageView>(R.id.dashCardLogo)
+                val historyJobCompanyName = cardView.findViewById<TextView>(R.id.dashCompanyName)
+                val historyJobDate = cardView.findViewById<TextView>(R.id.dashJobDate)
+                val historyJobLocation = cardView.findViewById<TextView>(R.id.dashJobLocation)
+
+                fetchCompanyLogo(company_name) { fetchedLogoUrl ->
+                    if (fetchedLogoUrl != null) {
+                        // Load the company logo
+                        Picasso.get().load(fetchedLogoUrl).into(logo)
+                        // Cache the logo URL
+                        logoCache[company_name] = fetchedLogoUrl
+                    } else if (fetchedLogoUrl == null) {
+                        // Use the default placeholder drawable
+                        logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
+                        //prevent accidental overwrite for existing companyNames with logos
+                        if (!logoCache.containsKey(company_name)) {
+                            logoCache[company_name] = "placeholder"
+                        }
+                    }
+                }
+
+                // Set values to the TextViews
+                historyJobTitle.text = title
+                historyJobCompanyName.text = company_name
+                historyJobDate.text = formatted_relative_time
+                historyJobLocation.text = location
+
+                cardView.setOnClickListener() {
+                    onCardClick2(results[i])
+                }
+
+                cardContainer.addView(cardView)
+
+            }
+        }
+        catch(e:Exception){
+            binding.textNoResults.visibility = View.VISIBLE
+            Log.d("katie error in updateUI", e.toString())
+        }
+
+    }
+
     private fun fetchCompanyLogo(companyDomain: String, callback: (String?) -> Unit) {
         val searchDomain = "$companyDomain".substringBefore(" ").replace("[^a-zA-Z0-9]".toRegex(), "")+ ".com"
 
@@ -564,69 +675,14 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateUI2(result: String, inflater: LayoutInflater) {
-        try{
-            val jsonString = result.trimIndent()
-            val gson = Gson()
-
-            val apiResponse = gson.fromJson(jsonString, OtherJobClass::class.java);
-            val results = apiResponse.results
-            var cardContainer = binding.cardHolder
-            dashboardViewModel.otherJobsResult = results
-
-                binding.textNoResults.visibility = View.GONE
-                for (i in 0 until results.size) {
-                    val title = results[i].title
-                    val company_name = results[i].company.display_name
-                    val location = results[i].location.display_name
-                    val instant = Instant.parse(results[i].created)
-                    val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
-                    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd yyyy")
-                    val formattedDate = localDateTime.format(dateFormatter)
-                    val formatted_relative_time = formattedDate
-
-                    val cardView = inflater.inflate(R.layout.fragment_dashboard_card, null) as CardView
+        populateCardsUI2(result, inflater)
+    }
 
 
-                    val historyJobTitle = cardView.findViewById<TextView>(R.id.dashJobTitle)
-                    val logo = cardView.findViewById<ImageView>(R.id.dashCardLogo)
-                    val historyJobCompanyName = cardView.findViewById<TextView>(R.id.dashCompanyName)
-                    val historyJobDate = cardView.findViewById<TextView>(R.id.dashJobDate)
-                    val historyJobLocation = cardView.findViewById<TextView>(R.id.dashJobLocation)
-
-                    fetchCompanyLogo(company_name) { fetchedLogoUrl ->
-                        if (fetchedLogoUrl != null) {
-                            // Load the company logo
-                            Picasso.get().load(fetchedLogoUrl).into(logo)
-                            // Cache the logo URL
-                            logoCache[company_name] = fetchedLogoUrl
-                        } else if (fetchedLogoUrl == null) {
-                            // Use the default placeholder drawable
-                            logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
-                            //prevent accidental overwrite for existing companyNames with logos
-                            if (!logoCache.containsKey(company_name)) {
-                                logoCache[company_name] = "placeholder"
-                            }
-                        }
-                    }
-
-                    // Set values to the TextViews
-                    historyJobTitle.text = title
-                    historyJobCompanyName.text = company_name
-                    historyJobDate.text = formatted_relative_time
-                    historyJobLocation.text = location
-
-                    cardView.setOnClickListener() {
-                        onCardClick2(results[i])
-                    }
-
-                    cardContainer.addView(cardView)
-
-            }
-        }
-        catch(e:Exception){
-            binding.textNoResults.visibility = View.VISIBLE
-            Log.d("katie error in updateUI", e.toString())
-        }
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun updateUI2Search(result: String, inflater: LayoutInflater) {
+            binding.cardHolder.removeAllViews()
+            populateCardsUI2(result, inflater)
 
     }
 
@@ -658,7 +714,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         binding.cardHolder.removeAllViews()
         var cardContainer = binding.cardHolder
 
-        for (i in 0 until 10){
+        for (i in 0 until jobResult.size){
             val title = jobResult[i].name
             val company_name = jobResult[i].company.name
             val location = jobResult[i].locations[0].name
