@@ -47,9 +47,12 @@ class DashboardDetailedJob : AppCompatActivity() {
         val location = findViewById<TextView>(R.id.jobLocation)
         val companynameRec = intent.getStringExtra("companyName")
         val jobtitleRec = intent.getStringExtra("jobTitle")
-        val jobTypeRec = intent.getStringExtra("jobType")
-        val jobLocationRec = intent.getStringExtra("location")
+        var jobTypeRec = intent.getStringExtra("jobType")
+        if (jobTypeRec == null){
+            jobTypeRec = "Not Available"
+        }
         val jobLinkRec = intent.getStringExtra("jobLink")
+        val jobLocationRec = intent.getStringExtra("jobLocation")
         val jobDescriptionRec = intent.getStringExtra("html")
         val savebtn = findViewById<Button>(R.id.saveButton)
         val applybtn = findViewById<Button>(R.id.applyButton)
@@ -59,11 +62,15 @@ class DashboardDetailedJob : AppCompatActivity() {
             val companyName = findViewById<TextView>(R.id.companyName)
             val jobTitle = findViewById<TextView>(R.id.jobTitle)
             val logo = findViewById<ImageView>(R.id.companyLogo)
+            val location = findViewById<TextView>(R.id.jobLocation)
+            val jobType = findViewById<TextView>(R.id.jobType)
+
 
             companyName.text = companynameRec.toString()
             jobTitle.text = jobtitleRec.toString()
             description.text = jobDescriptionRec?.let { HtmlCompat.fromHtml(it, HtmlCompat.FROM_HTML_MODE_COMPACT) }
             location.text = jobLocationRec.toString()
+            jobType.text = jobTypeRec.toString()
 
             fetchCompanyLogo(companynameRec) { fetchedLogoUrl ->
                 if (fetchedLogoUrl != null ) {

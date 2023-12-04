@@ -44,6 +44,7 @@ import okhttp3.Request
 import okhttp3.Response
 import org.json.JSONException
 import org.json.JSONObject
+import org.w3c.dom.Text
 import java.io.IOException
 import java.time.Instant
 import java.time.LocalDateTime
@@ -76,6 +77,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             var sendCategory = "category=$categoryReplace"
 
         jobSearchWithQuery(sendJobType, sendLocation, sendCategory)
+            getOtherOnlineJob(sendLocation, sendCategory)
         }
     }
 
@@ -86,6 +88,29 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
     fun replaceCommaWithExtraPercent(input:String):String{
         return input.replace(",", "%2C")
     }
+
+    data class OtherJobClass(
+        val results: List<JobResult>
+    )
+
+    data class JobResult(
+        val title: String,
+        val company: Company2,
+        val location: Location2,
+        val description: String,
+        val contract_type: String,
+        val salary_is_predicted: String,
+        val redirect_url: String,
+        val created: String
+    )
+
+    data class Company2(
+        val display_name: String
+    )
+
+    data class Location2(
+        val display_name: String
+    )
 
     data class ApiResponse(
         val page: Int,
@@ -234,6 +259,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                         Log.e("katie", "Error parsing JSON: ${e}")
                     }
                 }
+                getOtherOnlineJob("","")
             } catch (e: Exception) {
                 Log.d("katie", "error in viewCreate")
                 e.printStackTrace()
@@ -343,7 +369,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             try {
                 val client = OkHttpClient()
                 val url = "https://www.themuse.com/api/public/jobs?location=Vancouver%2C%20Canada&page=1"
-//                val url = "https://indeed12.p.rapidapi.com/jobs/search?query=manager&location=chicago&page_id=1&fromage=3&radius=10"
                 val request = Request.Builder().url(url)
                     .addHeader("Content-Type", "application/json")
                     .build()
@@ -362,6 +387,40 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                 }
             } catch (e: Exception) {
                 callback("Error: ${e.message}")
+            }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private suspend fun getOtherOnlineJob(country:String, role:String) {
+        withContext1(Dispatchers.IO) {
+            try {
+                val client = OkHttpClient()
+                var cCode = "us"
+                if (country.contains("Canada")){
+                    cCode = "ca"
+                }
+                var percentSearch = replaceSpaceWithPercent(role)
+                var query = "&what=$percentSearch"
+                val url = "https://api.adzuna.com/v1/api/jobs/$cCode/search/1?app_id=1c42f8f0&app_key=9c6dc2aeac748a9a7873a6c071931a67$query"
+                val request = Request.Builder().url(url)
+                    .addHeader("Content-Type", "application/json")
+                    .build()
+
+                client.newCall(request).execute().use{ response ->
+                    if (response.isSuccessful) {
+                        val result = response.body!!.string()
+
+                        lifecycleScope.launch(Dispatchers.Main){
+                            updateUI2(result, LayoutInflater.from(requireContext()))
+                        }
+                    } else {
+
+                        Log.d("Error:" , response.code.toString())
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("Error: ", e.message.toString())
             }
         }
     }
@@ -416,37 +475,109 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateUI(result: String, inflater: LayoutInflater) {
         binding.cardHolder.removeAllViews()
-        try{
+        try {
             val jsonString = result.trimIndent()
             val gson = Gson()
 
             val apiResponse = gson.fromJson(jsonString, ApiResponse::class.java);
             val results: List<Result> = apiResponse.results
             var cardContainer = binding.cardHolder
-            if (results.size == 0){
+            if (results.size == 0) {
                 binding.textNoResults.visibility = View.VISIBLE
-            }
-            else {
+            } else {
+                if (results.size > 11) {
+                    binding.textNoResults.visibility = View.GONE
+                    for (i in 0 until 10) {
+                        val title = results[i].name
+                        val company_name = results[i].company.name
+                        val location = results[i].locations[0].name
+                        val instant = Instant.parse(results[i].publicationDate)
+                        val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+                        val dateFormatter = DateTimeFormatter.ofPattern("MMM dd yyyy")
+                        val formattedDate = localDateTime.format(dateFormatter)
+                        val formatted_relative_time = formattedDate
 
+                        val cardView =
+                            inflater.inflate(R.layout.fragment_dashboard_card, null) as CardView
+
+
+                        val historyJobTitle = cardView.findViewById<TextView>(R.id.dashJobTitle)
+                        val logo = cardView.findViewById<ImageView>(R.id.dashCardLogo)
+                        val historyJobCompanyName =
+                            cardView.findViewById<TextView>(R.id.dashCompanyName)
+                        val historyJobDate = cardView.findViewById<TextView>(R.id.dashJobDate)
+                        val historyJobLocation =
+                            cardView.findViewById<TextView>(R.id.dashJobLocation)
+
+                        fetchCompanyLogo(company_name) { fetchedLogoUrl ->
+                            if (fetchedLogoUrl != null) {
+                                // Load the company logo
+                                Picasso.get().load(fetchedLogoUrl).into(logo)
+                                // Cache the logo URL
+                                logoCache[company_name] = fetchedLogoUrl
+                            } else if (fetchedLogoUrl == null) {
+                                // Use the default placeholder drawable
+                                logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
+                                //prevent accidental overwrite for existing companyNames with logos
+                                if (!logoCache.containsKey(company_name)) {
+                                    logoCache[company_name] = "placeholder"
+                                }
+                            }
+                        }
+
+
+                        // Set values to the TextViews
+                        historyJobTitle.text = title
+                        historyJobCompanyName.text = company_name
+                        historyJobDate.text = formatted_relative_time
+                        historyJobLocation.text = location
+
+                        cardView.setOnClickListener() {
+                            onCardClick(results[i])
+                        }
+
+                        cardContainer.addView(cardView)
+                    }
+                }
+            }
+        }
+        catch(e:Exception){
+            binding.textNoResults.visibility = View.VISIBLE
+            Log.d("katie error in updateUI", e.toString())
+        }
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun updateUI2(result: String, inflater: LayoutInflater) {
+        try{
+            val jsonString = result.trimIndent()
+            val gson = Gson()
+
+            val apiResponse = gson.fromJson(jsonString, OtherJobClass::class.java);
+            val results = apiResponse.results
+            var cardContainer = binding.cardHolder
+
+            if (results.size >7){
                 binding.textNoResults.visibility = View.GONE
-                for (i in 0 until results.size) {
-                    val title = results[i].name
-                    val company_name = results[i].company.name
-                    val instant = Instant.parse(results[i].publicationDate)
+                for (i in 0 until 6) {
+                    val title = results[i].title
+                    val company_name = results[i].company.display_name
+                    val location = results[i].location.display_name
+                    val instant = Instant.parse(results[i].created)
                     val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
-                    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd, YYYY")
+                    val dateFormatter = DateTimeFormatter.ofPattern("MMM dd yyyy")
                     val formattedDate = localDateTime.format(dateFormatter)
                     val formatted_relative_time = formattedDate
 
-                    val cardView =
-                        inflater.inflate(R.layout.fragment_dashboard_card, null) as CardView
+                    val cardView = inflater.inflate(R.layout.fragment_dashboard_card, null) as CardView
 
 
                     val historyJobTitle = cardView.findViewById<TextView>(R.id.dashJobTitle)
                     val logo = cardView.findViewById<ImageView>(R.id.dashCardLogo)
-                    val historyJobCompanyName =
-                        cardView.findViewById<TextView>(R.id.dashCompanyName)
+                    val historyJobCompanyName = cardView.findViewById<TextView>(R.id.dashCompanyName)
                     val historyJobDate = cardView.findViewById<TextView>(R.id.dashJobDate)
+                    val historyJobLocation = cardView.findViewById<TextView>(R.id.dashJobLocation)
 
                     fetchCompanyLogo(company_name) { fetchedLogoUrl ->
                         if (fetchedLogoUrl != null) {
@@ -468,10 +599,10 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                     historyJobTitle.text = title
                     historyJobCompanyName.text = company_name
                     historyJobDate.text = formatted_relative_time
-                    //                                historyJobLocation.text = location
+                    historyJobLocation.text = location
 
                     cardView.setOnClickListener() {
-                        onCardClick(results[i])
+                        onCardClick2(results[i])
                     }
 
                     cardContainer.addView(cardView)
@@ -490,10 +621,21 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         val intent = Intent(activity, DashboardDetailedJob::class.java)
         intent.putExtra("jobTitle", result.name);
         intent.putExtra("companyName", result.company.name)
-        intent.putExtra("location", result.locations[0].name)
-        intent.putExtra("jobLink", result.refs.landingPage)
-        intent.putExtra("jobType", result.levels[0].name)
+        intent.putExtra("jobType", result.type)
+        intent.putExtra("jobLocation", result.locations[0].name)
         intent.putExtra("html", result.contents)
+        intent.putExtra("jobLink", result.refs.landingPage)
+        startActivity(intent)
+    }
+
+    private fun onCardClick2(result: DashboardFragment.JobResult) {
+        val intent = Intent(activity, DashboardDetailedJob::class.java)
+        intent.putExtra("jobTitle", result.title);
+        intent.putExtra("companyName", result.company.display_name)
+        intent.putExtra("jobType", result.contract_type)
+        intent.putExtra("jobLocation", result.location.display_name)
+        intent.putExtra("html", result.description)
+        intent.putExtra("jobLink", result.redirect_url)
         startActivity(intent)
     }
 

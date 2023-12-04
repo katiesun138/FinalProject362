@@ -27,7 +27,7 @@
             android:scaleType="centerCrop"/>
         <TextView
             android:id="@+id/dashJobTitle"
-            android:layout_width="220dp"
+            android:layout_width="210dp"
             android:layout_height="wrap_content"
             android:text="@string/history_job_title"
             android:layout_toEndOf="@+id/dashCardLogo"
@@ -53,11 +53,15 @@
             android:layout_marginStart="10dp"/>
         <TextView
             android:id="@+id/dashJobLocation"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="@string/history_job_location"
             android:layout_alignParentEnd="true"
             android:layout_below="@id/dashJobDate"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="10dp"
+            android:ellipsize="end"
+            android:gravity="right|end"
             android:textSize="13sp"/>
 
     </RelativeLayout>

@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:padding="20px"
     tools:context=".ui.dashboard.DashboardDetailedJob">
 
     <LinearLayout
@@ -66,6 +67,21 @@
 
             <TextView
                 android:id="@+id/jobTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+
+            <!-- Job Type Header and Text -->
+            <TextView
+                android:id="@+id/jobTypeDescription"
+                android:layout_width="wrap_content"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_height="wrap_content"
+                android:text="Job Type: " />
+
+            <TextView
+                android:id="@+id/jobType"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="" />
