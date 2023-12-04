@@ -106,7 +106,7 @@ class DashboardDetailedJob : AppCompatActivity() {
     }
 
     private fun fetchCompanyLogo(companyDomain: String, callback: (String?) -> Unit) {
-        val searchDomain = companyDomain + ".com"
+        val searchDomain = "$companyDomain".substringBefore(" ").replace("[^a-zA-Z0-9]".toRegex(), "")+ ".com"
 
         val apiUrl = "https://logo.clearbit.com/$searchDomain"
 

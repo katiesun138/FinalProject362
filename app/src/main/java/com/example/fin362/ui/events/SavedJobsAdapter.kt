@@ -56,7 +56,7 @@ class SavedJobsAdapter(private val context: Context, private val onDeleteClickLi
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val currentJob = itemList[position]
-        val searchDomain = currentJob.companyName + ".com"
+        val searchDomain = currentJob.companyName
         holder.companyLogoImageView.tag = currentJob.companyName + position
 
         val logoUrl = logoCache[currentJob.companyName]
@@ -141,7 +141,8 @@ class SavedJobsAdapter(private val context: Context, private val onDeleteClickLi
     }
 
     private fun fetchCompanyLogo(companyDomain: String, callback: (String?) -> Unit) {
-        val apiUrl = "https://logo.clearbit.com/$companyDomain"
+        val searchDomain = "$companyDomain".substringBefore(" ").replace("[^a-zA-Z0-9]".toRegex(), "")+ ".com"
+        val apiUrl = "https://logo.clearbit.com/$searchDomain"
 
         val client = OkHttpClient()
 
