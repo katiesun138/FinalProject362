@@ -809,13 +809,15 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
                     // Load the company logo
                     Picasso.get().load(fetchedLogoUrl).into(logo)
                     // Cache the logo URL
-                    logoCache[company_name] = fetchedLogoUrl
+                    try{ logoCache[company_name] = fetchedLogoUrl }
+                    catch(e: Exception){}
                 } else if (fetchedLogoUrl == null) {
                     // Use the default placeholder drawable
                     logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
                     //prevent accidental overwrite for existing companyNames with logos
                     if (!logoCache.containsKey(company_name)) {
-                        logoCache[company_name] = "placeholder"
+                        try{ logoCache[company_name] = "placeholder" }
+                        catch(e: Exception){}
                     }
                 }
             }
