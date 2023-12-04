@@ -66,14 +66,11 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
     private lateinit var dashboardViewModel: DashboardViewModel
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-
-
-
+    
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun onFiltersApplied(jobType: String, location: String, category: String) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.Main) {
-//
-        Log.d("katie onfiltersent back", jobType)
+
             var jobTypeReplace = replaceSpaceWithPercent(jobType)
             var locationReplace = replaceCommaWithExtraPercent(replaceSpaceWithPercent(location))
             var categoryReplace = replaceSpaceWithPercent(category)
@@ -199,15 +196,27 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
         } else {
             println("Internet is not enabled. Enabling it now...")
             context?.let { enableInternet(it) }
+            dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
         }
-        dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
+        if (::dashboardViewModel.isInitialized) {
+            if (dashboardViewModel.jobsResult != null) {
+                updateUIWithViewModelData(dashboardViewModel.jobsResult!!, inflater)
 
-        if (dashboardViewModel.jobsResult != null){
-            updateUIWithViewModelData(dashboardViewModel.jobsResult!!, inflater)
-        }
-        else{
+                // Check if jobsResult has data
+                if (dashboardViewModel.jobsResult!!.isNotEmpty()) {
+                    updateUIWithViewModelData2(dashboardViewModel.otherJobsResult!!, inflater, true)
+                } else {
+                    updateUIWithViewModelData2(dashboardViewModel.otherJobsResult!!, inflater, false)
+                }
+            } else {
+                threadCallJobAPI()
+            }
+        } else {
+            // Initialize the ViewModel if not initialized
+            dashboardViewModel = ViewModelProvider(this).get(DashboardViewModel::class.java)
             threadCallJobAPI()
         }
+      
 
         //filter button is enabled and popup triggered
         val filterIcon = binding.iconFilter
@@ -220,7 +229,6 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
             val filterPopupFragment = DashboardFilterPopup()
             filterPopupFragment.filterPopupListener = this
-            //passing the reference to overlayView id , which is the VIEW that will darken screen
             filterPopupFragment.overlayView = overlayView
             filterPopupFragment.show(
                 requireActivity().supportFragmentManager,
@@ -369,8 +377,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             }
         }
     }
-
-
+    
 
     //check for internet connection - connect if not already
     fun isInternetEnabled(context: Context): Boolean {
@@ -503,6 +510,7 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
             val results = apiResponse.results
             var cardContainer = binding.cardHolder
             dashboardViewModel.otherJobsResult = results
+
 
             binding.textNoResults.visibility = View.GONE
             for (i in 0 until results.size) {
@@ -774,7 +782,70 @@ class DashboardFragment : Fragment(), DashboardFilterPopup.FilterPopupListener {
 
         }
     }
-    override fun onDestroyView() {
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun updateUIWithViewModelData2(results: List<DashboardFragment.JobResult>, inflater: LayoutInflater, existPrev:Boolean){
+        if (!existPrev){
+            binding.cardHolder.removeAllViews()
+        }
+        var cardContainer = binding.cardHolder
+        for (i in 0 until results.size) {
+            val title = results[i].title
+            val company_name = results[i].company.display_name
+            val location = results[i].location.display_name
+            val instant = Instant.parse(results[i].created)
+            val localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"))
+            val dateFormatter = DateTimeFormatter.ofPattern("MMM dd yyyy")
+            val formattedDate = localDateTime.format(dateFormatter)
+            val formatted_relative_time = formattedDate
+
+            val cardView =
+                inflater.inflate(R.layout.fragment_dashboard_card, null) as CardView
+
+
+            val historyJobTitle = cardView.findViewById<TextView>(R.id.dashJobTitle)
+            val logo = cardView.findViewById<ImageView>(R.id.dashCardLogo)
+            val historyJobCompanyName =
+                cardView.findViewById<TextView>(R.id.dashCompanyName)
+            val historyJobDate = cardView.findViewById<TextView>(R.id.dashJobDate)
+            val historyJobLocation =
+                cardView.findViewById<TextView>(R.id.dashJobLocation)
+
+            fetchCompanyLogo(company_name) { fetchedLogoUrl ->
+                if (fetchedLogoUrl != null) {
+                    // Load the company logo
+                    Picasso.get().load(fetchedLogoUrl).into(logo)
+                    // Cache the logo URL
+                    logoCache[company_name] = fetchedLogoUrl
+                } else if (fetchedLogoUrl == null) {
+                    // Use the default placeholder drawable
+                    logo.setImageResource(R.drawable.ic_company_placeholder_black_24dp)
+                    //prevent accidental overwrite for existing companyNames with logos
+                    if (!logoCache.containsKey(company_name)) {
+                        logoCache[company_name] = "placeholder"
+                    }
+                }
+            }
+
+
+            // Set values to the TextViews
+            historyJobTitle.text = title
+            historyJobCompanyName.text = company_name
+            historyJobDate.text = formatted_relative_time
+            historyJobLocation.text = location
+
+            cardView.setOnClickListener() {
+                onCardClick2(results[i])
+            }
+
+            cardContainer.addView(cardView)
+
+        }
+
+
+    }
+
+        override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
